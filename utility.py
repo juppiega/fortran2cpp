@@ -12,6 +12,11 @@ def isComment(line):
     """Test for comment"""
     strippedLine = line.strip()
     return strippedLine.find("!") == 0 # First character is "!"
+    
+def isProgram(line):
+    """Test for program"""
+    strippedLine = line.strip().lower() # Convert to lower for easier comparison.
+    return strippedLine[:7] == "program"
 
 def isImplicitNone(line):
     """Test for implicit none"""
@@ -21,7 +26,8 @@ def isImplicitNone(line):
         return strippedLine[:13] == "implicit none" # Thirteen first non-space characters are "implcit none"
     else:
         return False
-
+    # ENHANCEMENT: What if there are multiple spaces between "implicit" and "none"?
+        
 def isEnd(line):
     """Test for End (any) statement"""
     strippedLine = line.strip().lower() # Convert to lower for easier comparison.
@@ -38,6 +44,11 @@ def isInteger(line):
     else:
         return False
 
+def isFile(fileName):
+    """Check for file's existence"""
+    import os.path
+    return os.path.isfile(fileName)
+
 # -----------------------------------------------------------------------
 def fixComment(line):
     """Changes Fortran ! -comment to C++ // -comment."""
@@ -51,6 +62,15 @@ def stripStrings(stringList):
         newList[i] = stringList[i].strip()
     return newList
 # -----------------------------------------------------------------------
-    
+def readInputLine(argv):
+    """Read command line arguments.
+    sourceFiles and options are output"""
+    if len(argv) == 1: # No arguments
+        raise SyntaxError("Too few arguments.")
+    if isFile(argv[1]):
+        sourceFiles = argv[1]
+    else:
+        raise RuntimeError("File not found: " + argv[1])
+    return sourceFiles
 
 
