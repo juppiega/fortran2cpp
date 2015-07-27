@@ -2,7 +2,7 @@
 Recognize type of source line and add to program's call tree.
 Throw an error for unrecognized line.
 """
- # Import recognization functions
+# Import recognization functions
 from utility import isNewline, isComment, isImplicitNone, isInteger
 # Import ProgramParts
 from Newline import Newline
@@ -20,4 +20,4 @@ def recognizeSourceLineAndUpdateTree(subParts, line):
     elif isInteger(line):
         subParts.append(Integer(line))
     else:
-        raise RuntimeError("Unknown statement: " + line + ".\nPlease first use a Fortran compiler")
+        raise RuntimeError("Unknown statement: " + line + "Please first use a Fortran compiler")

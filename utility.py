@@ -5,8 +5,7 @@ Utility functions.
 # -----------------------------------------------------------------------
 def isNewline(line):
     """Test for newline character."""
-    from os import linesep # End of line character
-    return line.strip() == linesep # Stripped line contains only the newline character
+    return line.strip() == "" # Line should already be empty, but strip just to be sure.
 
 def isComment(line):
     """Test for comment"""
@@ -54,12 +53,27 @@ def fixComment(line):
     """Changes Fortran ! -comment to C++ // -comment."""
     newLine = line.replace("!", "//")
     return newLine
+
+def removeComment(line):
+    """Strips comment from line.
+       Input "line" is modified and comment string is returned"""
+    from collections import namedtuple # Multiple return values are achieved via a named tuple.
+    
+    commentInd = line.find("!")
+    if commentInd > -1: # Line contained comment
+        strippedLine = line[:commentInd].strip()
+        commentStr = line[commentInd:]
+    else: # No comment
+        strippedLine = line.strip()
+        commentStr = ""
+    # Return multiple arguments
+    return namedtuple("commentRemoved", ["lineOnly", "comment"])(strippedLine, commentStr)
     
 def stripStrings(stringList):
     """Strips a list of strings from leading and trailing spaces."""
     newList = []
     for i in range(len(stringList)):
-        newList[i] = stringList[i].strip()
+        newList.append(stringList[i].strip())
     return newList
 # -----------------------------------------------------------------------
 def readInputLine(argv):
@@ -73,4 +87,11 @@ def readInputLine(argv):
         raise RuntimeError("File not found: " + argv[1])
     return sourceFiles
 
+def formatOutputFiles(outputFileName):
+    """Format output file using a verbose C++ coding style.
+       Program "astyle" needs to be installed."""
+    from subprocess import check_call
+    check_call(["astyle", "--style=allman", "--indent-col1-comments", \
+                "--pad-oper", "--pad-header", "--align-pointer=name", \
+                "--add-brackets", "--suffix=none", "--quiet",  outputFileName])
 

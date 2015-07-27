@@ -6,6 +6,12 @@ Main program of the compiler performs the following actions:
 Usage:
 fortran2cpp <fileName>
 
+Depends:
+"astyle" C++ formatter program. Installable in Debian derivatives via:
+apt-get install astyle
+Installers for other systems available at:
+http://astyle.sourceforge.net/
+
 Arguments:
 <fileName> = Name of the file to be translated. Can be in free or fixed format.
 

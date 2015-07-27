@@ -1,12 +1,14 @@
 """
 Translates the parsed call tree to C++
 """
+from os import linesep # End of line character.
+from utility import formatOutputFiles
 
 def translateToCpp(callTree, sourceFiles):
     translation = ""
     # Add translations of individual parts together to an overall translation.
     for programPart in callTree:
-        translation += programPart.translate()
+        translation += programPart.translate() + linesep
     
     # Find filename by changing the file suffix to cpp
     fileSuffixInd = sourceFiles.rfind(".")
@@ -18,3 +20,5 @@ def translateToCpp(callTree, sourceFiles):
     outputFile.write(translation)
     # -------------------------------------------------------------------
     outputFile.close()
+    
+    formatOutputFiles(outputName) # Format output file. Program "astyle" needs to be installed.

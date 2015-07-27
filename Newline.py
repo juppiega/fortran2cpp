@@ -4,7 +4,6 @@ Fortran source new line character
 """
 
 from ProgramPart import ProgramPart
-from os import linesep # End of line character.
 
 class Newline(ProgramPart):
     def __init__(self): # Constructor does nothing.
@@ -12,4 +11,4 @@ class Newline(ProgramPart):
     def parse(self):   # So does parse()
         pass
     def translate(self): # translate() returns the os' newline character (usually \n)
-        return linesep
+        return "" # Newline is added to all lines in a higher level object translation (e.g. Program, Function etc.)

@@ -12,7 +12,7 @@ def generateCallTree(sourceFiles, options):
     callTree = []
     while True:
         try:
-            line = firstFile.next() # Read next line.
+            line = firstFile.next().strip() # Read next line.
         except: # End of file
             break
         if isProgram(line): # Is this a line containing "program" statement?

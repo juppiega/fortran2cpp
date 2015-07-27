@@ -8,7 +8,7 @@ possible attributes (e.g. save).
 """
 
 from ProgramPart import ProgramPart
-from utility import fixComment, stripStrings
+from utility import stripStrings, removeComment, fixComment
 
 class Integer(ProgramPart):
     # Constructor
@@ -16,17 +16,23 @@ class Integer(ProgramPart):
         """Initialize class variables and parse the given line."""
         self.kind = 4   # Integer kind (default: 4-byte "int")
         self.names = [] # Names of integer variables.
+        self.comment = ""
         self.parse(line)     # Parse information necessary for translation.
     
     def parse(self, line):
-        """Find Integer names"""
-        if "::" in line: # If line contains Fortran "::"-operator
-            namesBegin = line.find("::") + 2 # First index after "::"
+        """Find Integer names and kinds"""
+        lineAndComment = removeComment(line) # Returns tuple with fields "lineOnly" and "comment"
+        strippedLine = lineAndComment.lineOnly
+        if "::" in strippedLine: # If line contains Fortran "::"-operator
+            namesBegin = strippedLine.find("::") + 2 # First index after "::"
             # Variable names are the ones after "::", separated by comma
-            self.names = line[namesBegin:].split(",")
+            self.names = strippedLine[namesBegin:].split(",")
+        else: # One variable only
+            lineParts = strippedLine.split(" ")
+            self.names = lineParts[-1]
+        self.comment = lineAndComment.comment
     
     def translate(self):
-        self.names[-1] = fixComment(self.names[-1])
         self.names = stripStrings(self.names)
         # Convert from Fortran kind to C++ integer type.
         if self.kind <= 2: # 1 or 2
@@ -36,9 +42,9 @@ class Integer(ProgramPart):
         else: # self.kind > 4
             typeName = "long long"
         
-        separator = ", " # Separate variables using this string
+        separator = ", " # Separate variables using this string. If only one variable, join does nothing
         # TRANSLATION ---------------------------------------------
-        translation = typeName + " " +  separator.join(self.names) + ";"
+        translation = typeName + " " +  separator.join(self.names) + "; " + fixComment(self.comment)
         # ---------------------------------------------------------
         return translation
         
