@@ -1,15 +1,23 @@
+#define FTN_DEBUG
 #include <stdlib.h>
 #include <stdio.h>
 #include "ftn.h"
 
+struct S
+{
+	double d;
+};
+
 int main()
 {
-	ftn::numArray<double> a(ftn::span(2,5));
-	a.putScalar(1.0);
+	ftn::Array<double> a(5), b(5);
+	a = 1.0; b = 2.0;
 
-	a(5) = 2;
+	//std::cout << a << std::endl;
 
-	std::cout << a(5) << std::endl;
+	ftn::Array<double> c = a + b;
+
+	std::cout << c << std::endl;
 
 	return 0;
 }

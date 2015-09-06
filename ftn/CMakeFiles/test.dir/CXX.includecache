@@ -11,6 +11,10 @@ Domi_MDVector.hpp
 -
 Domi_Slice.hpp
 -
+Domi_MDArrayView.hpp
+-
+Domi_MDArrayRCP.hpp
+-
 Tpetra_DefaultPlatform.hpp
 -
 Teuchos_RCP.hpp
@@ -19,7 +23,17 @@ iostream
 -
 array
 -
-type_traits
+vector
+-
+cmath
+-
+cstddef
+-
+stdexcept
+-
+string
+-
+sstream
 -
 
 /home/juho/programming/c++/ftn/main.cpp
