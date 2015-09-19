@@ -19,7 +19,7 @@ public:
 
 template<class LeftSide, class RightSide, class Scalar>
 BinaryOperatorBase<ArraySum<LeftSide, RightSide, Scalar>, LeftSide, RightSide, Scalar> const operator+ (
-		FtnBase<LeftSide, Scalar> const& a, FtnBase<RightSide, Scalar> const& b)
+		ArrayBase<LeftSide, Scalar> const& a, ArrayBase<RightSide, Scalar> const& b)
 {
 	return BinaryOperatorBase<ArraySum<LeftSide, RightSide, Scalar>, LeftSide, RightSide, Scalar>(a, b);
 }
@@ -41,7 +41,7 @@ public:
 
 template<class LeftSide, class RightSide, class Scalar>
 BinaryOperatorBase<ArrayDifference<LeftSide, RightSide, Scalar>, LeftSide, RightSide, Scalar> const operator- (
-		FtnBase<LeftSide, Scalar> const& a, FtnBase<RightSide, Scalar> const& b)
+		ArrayBase<LeftSide, Scalar> const& a, ArrayBase<RightSide, Scalar> const& b)
 {
 	return BinaryOperatorBase<ArrayDifference<LeftSide, RightSide, Scalar>, LeftSide, RightSide, Scalar>(a, b);
 }
@@ -62,7 +62,7 @@ public:
 
 template<class LeftSide, class RightSide, class Scalar>
 BinaryOperatorBase<ArrayProduct<LeftSide, RightSide, Scalar>, LeftSide, RightSide, Scalar> const operator% (
-		FtnBase<LeftSide, Scalar> const& a, FtnBase<RightSide, Scalar> const& b)
+		ArrayBase<LeftSide, Scalar> const& a, ArrayBase<RightSide, Scalar> const& b)
 {
 	return BinaryOperatorBase<ArrayProduct<LeftSide, RightSide, Scalar>, LeftSide, RightSide, Scalar>(a, b);
 }
@@ -83,7 +83,7 @@ public:
 
 template<class LeftSide, class RightSide, class Scalar>
 BinaryOperatorBase<ArrayDivision<LeftSide, RightSide, Scalar>, LeftSide, RightSide, Scalar> const operator/ (
-		FtnBase<LeftSide, Scalar> const& a, FtnBase<RightSide, Scalar> const& b)
+		ArrayBase<LeftSide, Scalar> const& a, ArrayBase<RightSide, Scalar> const& b)
 {
 	return BinaryOperatorBase<ArrayDivision<LeftSide, RightSide, Scalar>, LeftSide, RightSide, Scalar>(a, b);
 }

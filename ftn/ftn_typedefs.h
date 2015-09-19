@@ -15,6 +15,7 @@
 #include <stdexcept>
 #include <string>
 #include <sstream>
+#include <limits>
 
 // Namespace of the Fortran emulator - ftn
 namespace ftn
@@ -30,7 +31,7 @@ using Teuchos::RCP;
 using Teuchos::rcp;
 using Teuchos::tuple;
 typedef Domi::dim_type dim_type; // Define dim_type as a shorthand for Domi::dim_type
-static const dim_type Dynamic = Domi::Slice::Default; // Create new keyword "Dynamic" for array operation emulation.
+const dim_type Dynamic = std::numeric_limits<dim_type>::min(); // Create new keyword "Dynamic" for array operation emulation.
 
 }
 

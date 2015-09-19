@@ -6,9 +6,9 @@ CMakeFiles/test.dir/main.cpp.o
  /home/juho/programming/c++/ftn/ftn_Array.h
  /home/juho/programming/c++/ftn/ftn_ArrayBase.h
  /home/juho/programming/c++/ftn/ftn_ArrayImplementations.h
+ /home/juho/programming/c++/ftn/ftn_ArrayNonConstBase.h
  /home/juho/programming/c++/ftn/ftn_BinaryOperatorBase.h
  /home/juho/programming/c++/ftn/ftn_BinaryOperatorImplementations.h
- /home/juho/programming/c++/ftn/ftn_FtnBase.h
  /home/juho/programming/c++/ftn/ftn_OperatorBase.h
  /home/juho/programming/c++/ftn/ftn_Span.h
  /home/juho/programming/c++/ftn/ftn_typedefs.h

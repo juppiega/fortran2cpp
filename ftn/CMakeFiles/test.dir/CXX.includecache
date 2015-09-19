@@ -7,34 +7,40 @@
 #IncludeRegexTransform: 
 
 /home/juho/programming/c++/ftn/ftn.h
-ftn_FtnBase.h
-/home/juho/programming/c++/ftn/ftn_FtnBase.h
 ftn_OperatorBase.h
 /home/juho/programming/c++/ftn/ftn_OperatorBase.h
 ftn_BinaryOperatorBase.h
 /home/juho/programming/c++/ftn/ftn_BinaryOperatorBase.h
 ftn_BinaryOperatorImplementations.h
 /home/juho/programming/c++/ftn/ftn_BinaryOperatorImplementations.h
-ftn_ArrayBase.h
-/home/juho/programming/c++/ftn/ftn_ArrayBase.h
 ftn_Span.h
 /home/juho/programming/c++/ftn/ftn_Span.h
 ftn_Array.h
 /home/juho/programming/c++/ftn/ftn_Array.h
-ftn_ArrayImplementations.h
-/home/juho/programming/c++/ftn/ftn_ArrayImplementations.h
-
-/home/juho/programming/c++/ftn/ftn_Array.h
 ftn_ArrayBase.h
 /home/juho/programming/c++/ftn/ftn_ArrayBase.h
+ftn_ArrayImplementations.h
+/home/juho/programming/c++/ftn/ftn_ArrayImplementations.h
+ftn_ArrayNonConstBase.h
+/home/juho/programming/c++/ftn/ftn_ArrayNonConstBase.h
+
+/home/juho/programming/c++/ftn/ftn_Array.h
+ftn_ArrayNonConstBase.h
+/home/juho/programming/c++/ftn/ftn_ArrayNonConstBase.h
+ftn_Span.h
+/home/juho/programming/c++/ftn/ftn_Span.h
 
 /home/juho/programming/c++/ftn/ftn_ArrayBase.h
-ftn_FtnBase.h
-/home/juho/programming/c++/ftn/ftn_FtnBase.h
+ftn_typedefs.h
+/home/juho/programming/c++/ftn/ftn_typedefs.h
 
 /home/juho/programming/c++/ftn/ftn_ArrayImplementations.h
 ftn_Array.h
 /home/juho/programming/c++/ftn/ftn_Array.h
+
+/home/juho/programming/c++/ftn/ftn_ArrayNonConstBase.h
+ftn_ArrayBase.h
+/home/juho/programming/c++/ftn/ftn_ArrayBase.h
 
 /home/juho/programming/c++/ftn/ftn_BinaryOperatorBase.h
 ftn_OperatorBase.h
@@ -44,13 +50,11 @@ ftn_OperatorBase.h
 ftn_BinaryOperatorBase.h
 /home/juho/programming/c++/ftn/ftn_BinaryOperatorBase.h
 
-/home/juho/programming/c++/ftn/ftn_FtnBase.h
-ftn_typedefs.h
-/home/juho/programming/c++/ftn/ftn_typedefs.h
-
 /home/juho/programming/c++/ftn/ftn_OperatorBase.h
-ftn_FtnBase.h
-/home/juho/programming/c++/ftn/ftn_FtnBase.h
+ftn_Array.h
+/home/juho/programming/c++/ftn/ftn_Array.h
+ftn_ArrayBase.h
+/home/juho/programming/c++/ftn/ftn_ArrayBase.h
 
 /home/juho/programming/c++/ftn/ftn_Span.h
 Domi_Slice.hpp
@@ -84,6 +88,8 @@ stdexcept
 string
 -
 sstream
+-
+limits
 -
 
 /home/juho/programming/c++/ftn/main.cpp

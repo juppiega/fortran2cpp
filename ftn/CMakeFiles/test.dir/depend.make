@@ -5,9 +5,9 @@ CMakeFiles/test.dir/main.cpp.o: ftn.h
 CMakeFiles/test.dir/main.cpp.o: ftn_Array.h
 CMakeFiles/test.dir/main.cpp.o: ftn_ArrayBase.h
 CMakeFiles/test.dir/main.cpp.o: ftn_ArrayImplementations.h
+CMakeFiles/test.dir/main.cpp.o: ftn_ArrayNonConstBase.h
 CMakeFiles/test.dir/main.cpp.o: ftn_BinaryOperatorBase.h
 CMakeFiles/test.dir/main.cpp.o: ftn_BinaryOperatorImplementations.h
-CMakeFiles/test.dir/main.cpp.o: ftn_FtnBase.h
 CMakeFiles/test.dir/main.cpp.o: ftn_OperatorBase.h
 CMakeFiles/test.dir/main.cpp.o: ftn_Span.h
 CMakeFiles/test.dir/main.cpp.o: ftn_typedefs.h

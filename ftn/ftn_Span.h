@@ -33,6 +33,7 @@ public:
 	}
 };
 // Class span
+
 }
 
 #endif /* FTN_SPAN_H_ */

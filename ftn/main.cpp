@@ -9,16 +9,20 @@ struct S
 	double d;
 };
 
+using namespace ftn;
+
 int main()
 {
-	ftn::Array<double> a(2), b(2);
-	a = 2.0; b = 2.0;
+
+	Array<double> a(span(0,4)), c(span(-1,3));
+	a = 2.0; c = 1.0;
 
 	//std::cout << a << std::endl;
 
-	ftn::Array<double> c = a % (b - a - a);
+	c = a;
 
 	std::cout << c << std::endl;
+	std::cout << c.lbound() << std::endl;
 
 	return 0;
 }
