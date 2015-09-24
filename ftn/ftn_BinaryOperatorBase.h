@@ -19,6 +19,14 @@ public:
 	BinaryOperatorBase (ArrayBase<LeftSide, Scalar> const& a, ArrayBase<RightSide, Scalar> const& b) :
 			first(a), second(b)
 	{
+#ifdef FTN_DEBUG
+		if (!sameShape(a, b))
+		{
+			std::ostringstream strStream;
+			strStream << "Trying to apply a binary operator between shapes: " << a.shape() << " and " << b.shape() << "!";
+			throw std::domain_error(strStream.str());
+		}
+#endif
 	}
 	size_t size () const
 	{

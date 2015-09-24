@@ -6,10 +6,13 @@ CMakeFiles/test.dir/main.cpp.o: ftn_Array.h
 CMakeFiles/test.dir/main.cpp.o: ftn_ArrayBase.h
 CMakeFiles/test.dir/main.cpp.o: ftn_ArrayImplementations.h
 CMakeFiles/test.dir/main.cpp.o: ftn_ArrayNonConstBase.h
+CMakeFiles/test.dir/main.cpp.o: ftn_ArrayView.h
+CMakeFiles/test.dir/main.cpp.o: ftn_ArrayViewImplementation.h
 CMakeFiles/test.dir/main.cpp.o: ftn_BinaryOperatorBase.h
 CMakeFiles/test.dir/main.cpp.o: ftn_BinaryOperatorImplementations.h
 CMakeFiles/test.dir/main.cpp.o: ftn_OperatorBase.h
 CMakeFiles/test.dir/main.cpp.o: ftn_Span.h
+CMakeFiles/test.dir/main.cpp.o: ftn_nonMemberFunctions.h
 CMakeFiles/test.dir/main.cpp.o: ftn_typedefs.h
 CMakeFiles/test.dir/main.cpp.o: main.cpp
 CMakeFiles/test.dir/main.cpp.o: /usr/lib/cmake/Trilinos/../../../include/Cuda/Kokkos_CudaExec.hpp

@@ -52,24 +52,6 @@ public:
 		return static_cast<Derived&>(*this).linear(index);
 	}
 
-	template<class Derived2, class Scalar2>
-	bool sameShapeAndContents (ArrayBase<Derived2, Scalar2> const& array) const
-	{
-		return static_cast<Derived const&>(*this).sameShapeAndContents(array);
-	}
-
-	template<class Derived2, class Scalar2>
-	bool sameShape (ArrayBase<Derived2, Scalar2> const& array) const
-	{
-		return static_cast<Derived const&>(*this).sameShape(array);
-	}
-
-	template<class Derived2, class Scalar2>
-	bool sameContents (ArrayBase<Derived2, Scalar2> const& array) const
-	{
-		return static_cast<Derived const&>(*this).sameContents(array);
-	}
-
 	Array<dim_type> shape () const;
 	Array<dim_type> lbound () const;
 

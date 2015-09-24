@@ -1,58 +1,23 @@
 #ifndef FTN_ARRAYIMPLEMENTATIONS_H_
 #define FTN_ARRAYIMPLEMENTATIONS_H_
 #include "ftn_Array.h"
-
-/* TODO:
- *
- *
- */
+#include "ftn_nonMemberFunctions.h"
 
 namespace ftn
 {
-template<class Scalar>
-Array<Scalar>::Array (dim_type initVal)
-{
-	beginIndices.reserve(1);
-	dimLengths.reserve(1);
-	dim_type initLength = findInitializationValues(initVal);
-#ifdef FTN_DEBUG
-	checkNonNegativeConstructLength(initLength);
-#endif
-	dimLengths.push_back(initLength);
-
-	if (initLength == 0)
-	{
-		isAllocated = false;
-	}
-	else
-	{
-		isAllocated = true;
-	}
-
-	mdArray = MDArrayRCP<Scalar>(tuple(initLength), Domi::FORTRAN_ORDER);
-}
 
 template<class Scalar>
-Array<Scalar>::Array (span initVal)
+template<class T1, class... OtherTypes>
+Array<Scalar>::Array (T1 m, OtherTypes... otherInitVals)
 {
-	beginIndices.reserve(1);
-	dimLengths.reserve(1);
-	dim_type initLength = findInitializationValues(initVal);
-#ifdef FTN_DEBUG
-	checkNonNegativeConstructLength(initLength);
-#endif
-	dimLengths.push_back(initLength);
+	constexpr int nDims = 1 + sizeof...(OtherTypes);
+	isAllocated = true;
+	beginIndices.reserve(nDims);
 
-	if (initLength == 0)
-	{
-		isAllocated = false;
-	}
-	else
-	{
-		isAllocated = true;
-	}
+	dim_type dimLengths[nDims] = {findInitializationValues(m), (findInitializationValues(otherInitVals))...};
 
-	mdArray = MDArrayRCP<Scalar>(tuple(initLength), Domi::FORTRAN_ORDER);
+	Teuchos::ArrayView<dim_type> d(&dimLengths[0], nDims);
+	mdArray = std::move(MDArrayRCP<Scalar>(d, Domi::FORTRAN_ORDER));
 }
 
 template<class Scalar>
@@ -62,7 +27,7 @@ Array<Scalar>::Array (ArrayBase<Derived, Scalar2> const& array)
 	isAllocated = true;
 	int nDims = array.numDims();
 	beginIndices.reserve(nDims);
-	dimLengths.reserve(nDims);
+	std::vector<dim_type> dimLengths;
 
 	for (int i = 1; i <= nDims; i++)
 	{
@@ -81,17 +46,82 @@ Array<Scalar>::Array (ArrayBase<Derived, Scalar2> const& array)
 }
 
 template<class Scalar>
+Array<Scalar>::Array (Array<Scalar>& array)
+{
+	isAllocated = true;
+	int nDims = array.numDims();
+	beginIndices.reserve(nDims);
+	std::vector<dim_type> dimLengths;
+
+	for (int i = 1; i <= nDims; i++)
+	{
+		beginIndices.push_back(array.lbound(i));
+		dimLengths.push_back(array.size(i));
+	}
+
+	Teuchos::ArrayView<dim_type> dims(dimLengths);
+	mdArray = MDArrayRCP<Scalar>(dims, Domi::FORTRAN_ORDER);
+
+	dim_type length = array.size();
+	for (int i = 0; i < length; i++)
+	{
+		mdArray.arrayRCP()[i] = array.linear(i + 1);
+	}
+}
+
+template<class Scalar>
+Array<Scalar>::Array (Array<Scalar> && other) noexcept
+{
+	isAllocated = true;
+	beginIndices.assign(other.numDims(), 1);
+	mdArray = std::move(other.mdArray);
+}
+
+template<class Scalar>
+Array<Scalar>& Array<Scalar>::operator= (Array<Scalar> && other) noexcept
+{
+#ifdef FTN_DEBUG
+	if (numDims() != other.numDims())
+	{
+		std::ostringstream strStream;
+		strStream << "Trying to assign array of dimension: " << other.numDims() << " into array of dimension: " << numDims();
+		throw std::domain_error(strStream.str());
+	}
+#endif
+	if (!isAllocated || !sameShape(*this, other))
+	{
+		int nDims = other.numDims();
+		beginIndices.assign(nDims, 1);
+
+		Teuchos::ArrayView<dim_type> dims(other.mdArray.dimensions().view());
+		if (isAllocated)
+			mdArray.resize(dims);
+		else
+			mdArray = MDArrayRCP<Scalar>(dims, Domi::FORTRAN_ORDER);
+
+		isAllocated = true;
+	}
+
+	mdArray = std::move(other.mdArray);
+
+	return *this;
+}
+
+template<class Scalar>
 template<class Derived, class Scalar2>
 Array<Scalar>& Array<Scalar>::operator= (ArrayBase<Derived, Scalar2> const& array)
 {
+#ifdef FTN_DEBUG
 	if (numDims() != array.numDims())
 	{
 		std::ostringstream strStream;
 		strStream << "Trying to assign array of dimension: " << array.numDims() << " into array of dimension: " << numDims();
 		throw std::domain_error(strStream.str());
 	}
+#endif
 
-	if (!isAllocated || !(sameShape(array)))
+	std::vector<dim_type> dimLengths;
+	if (!isAllocated || !(sameShape(*this, array)))
 	{
 		int nDims = array.numDims();
 		beginIndices.resize(nDims);
@@ -144,24 +174,10 @@ Array<dim_type> Array<Scalar>::shape () const
 
 	for (int i = 0; i < n; i++)
 	{
-		shape(i + 1) = dimLengths[i];
+		shape(i + 1) = mdArray.dimension(i);
 	}
 
 	return shape;
-}
-
-template<class Scalar>
-Array<dim_type> Array<Scalar>::lbound () const
-{
-	int n = numDims();
-	Array<dim_type> lbounds(n);
-
-	for (int i = 0; i < n; i++)
-	{
-		lbounds(i + 1) = beginIndices[i];
-	}
-
-	return lbounds;
 }
 
 template<class Scalar>
@@ -176,12 +192,15 @@ dim_type Array<Scalar>::findInitializationValues (dim_type initVal)
 	beginIndices.push_back(1);
 	if (initVal == Dynamic)
 	{
-		dimLengths.push_back(Dynamic);
 		return 0;
+		isAllocated = false;
 	}
 	else
 	{
-		dimLengths.push_back(initVal);
+#ifdef FTN_DEBUG
+		checkNonNegativeConstructLength(initVal);
+#endif
+		if (initVal == 0) isAllocated = false;
 		return initVal;
 	}
 }
@@ -191,11 +210,11 @@ dim_type Array<Scalar>::findInitializationValues (span initVal)
 {
 	if (initVal.stop() == Dynamic)
 	{
-		dimLengths.push_back(Dynamic);
 		if (initVal.start() != Dynamic)
 			beginIndices.push_back(initVal.start());
 		else
 			beginIndices.push_back(1);
+		isAllocated = false;
 		return 0;
 	}
 	else
@@ -205,26 +224,53 @@ dim_type Array<Scalar>::findInitializationValues (span initVal)
 		{
 			beginIndices.push_back(initVal.start());
 			length = initVal.stop() - initVal.start() + 1;
-			dimLengths.push_back(length);
 		}
 		else
 		{
 			beginIndices.push_back(1);
 			length = initVal.stop();
-			dimLengths.push_back(length);
 		}
+#ifdef FTN_DEBUG
+		checkNonNegativeConstructLength(length);
+#endif
+		if (length == 0) isAllocated = false;
 		return length;
 	}
 }
 
 template<class Scalar>
-void Array<Scalar>::indexOutOfBounds (dim_type index, int dimNumber) const
+dim_type Array<Scalar>::lbound (dim_type dimNumber) const
 {
-	dim_type upperBound = beginIndices[dimNumber] + dimLengths[dimNumber] - 1;
-	if (index < beginIndices[dimNumber] || index > upperBound)
+#ifdef FTN_DEBUG
+	if (dimNumber < 1 || dimNumber > numDims())
 	{
 		std::ostringstream strStream;
-		strStream << "Index " << index << " out of range [" << beginIndices[dimNumber] << ", " << upperBound << "]!";
+		strStream << "Argument dim = " << dimNumber << " out of range [" << 1 << ", " << numDims() << "]!";
+		throw std::invalid_argument(strStream.str());
+	}
+#endif
+	return beginIndices[dimNumber - 1];
+}
+
+template<class Scalar>
+Array<dim_type> Array<Scalar>::lbound () const
+{
+	int n = numDims();
+	Array<dim_type> lbounds(n);
+	for (int i = 1; i <= n; i++)
+	{
+		lbounds(i) = lbound(i);
+	}
+	return lbounds;
+}
+
+template<class Scalar>
+void Array<Scalar>::indexOutOfBounds (dim_type index, int dimNumber) const
+{
+	if (index < lbound(dimNumber) || index > ubound(dimNumber))
+	{
+		std::ostringstream strStream;
+		strStream << "Index " << index << " out of range [" << lbound(dimNumber) << ", " << ubound(dimNumber) << "]!";
 		throw std::out_of_range(strStream.str());
 	}
 }
@@ -244,7 +290,7 @@ template<class Scalar>
 Scalar Array<Scalar>::operator() (dim_type index) const
 {
 #ifdef FTN_DEBUG
-	indexOutOfBounds(index, 0);
+	indexOutOfBounds(index, 1);
 #endif
 	return mdArray(index - beginIndices[0]);
 }
@@ -253,7 +299,7 @@ template<class Scalar>
 Scalar& Array<Scalar>::operator() (dim_type index)
 {
 #ifdef FTN_DEBUG
-	indexOutOfBounds(index, 0);
+	indexOutOfBounds(index, 1);
 #endif
 	return mdArray(index - beginIndices[0]);
 }
@@ -293,11 +339,11 @@ size_t Array<Scalar>::size (size_t dimNumber) const
 		throw std::invalid_argument(strStream.str());
 	}
 #endif
-	return dimLengths[dimNumber - 1];
+	return mdArray.dimension(dimNumber - 1);
 }
 
 template<class Scalar>
-dim_type Array<Scalar>::lbound (dim_type dimNumber) const
+dim_type Array<Scalar>::ubound (dim_type dimNumber) const
 {
 #ifdef FTN_DEBUG
 	if (dimNumber < 1 || dimNumber > numDims())
@@ -307,7 +353,21 @@ dim_type Array<Scalar>::lbound (dim_type dimNumber) const
 		throw std::invalid_argument(strStream.str());
 	}
 #endif
-	return beginIndices[dimNumber - 1];
+	return beginIndices[dimNumber - 1] + mdArray.dimension(dimNumber - 1) - 1;
+}
+
+template<class Scalar>
+Array<dim_type> Array<Scalar>::ubound () const
+{
+	int n = numDims();
+	Array<dim_type> ubounds(n);
+
+	for (int i = 1; i <= n; i++)
+	{
+		ubounds(i) = ubound(i);
+	}
+
+	return ubounds;
 }
 
 //template<class Scalar>
@@ -326,41 +386,6 @@ dim_type Array<Scalar>::lbound (dim_type dimNumber) const
 //	Teuchos::ArrayView<dim_type> t(newDimVec);
 //	mdArray.resize(t);
 //}
-
-template<class Scalar>
-template<class Derived, class Scalar2>
-bool Array<Scalar>::sameShapeAndContents (ArrayBase<Derived, Scalar2> const& array) const
-{
-	return sameShape(array) && sameContents(array);
-}
-
-template<class Scalar>
-template<class Derived, class Scalar2>
-bool Array<Scalar>::sameContents (ArrayBase<Derived, Scalar2> const& array) const
-{
-	size_t n = size();
-	if (n == array.size())
-	{
-		for (size_t i = 1; i <= n; i++)
-		{
-			int a = linear(i);
-			int b = array.linear(i);
-			if (linear(i) != array.linear(i)) return false;
-		}
-		return true;
-	}
-	else
-	{
-		return false;
-	}
-}
-
-template<class Scalar>
-template<class Derived, class Scalar2>
-bool Array<Scalar>::sameShape (ArrayBase<Derived, Scalar2> const& array) const
-{
-	return shape().sameContents(array.shape());
-}
 
 template<class Scalar>
 Array<Scalar>& Array<Scalar>::operator= (const Scalar& x)

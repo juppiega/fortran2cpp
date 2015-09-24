@@ -13,6 +13,8 @@ ftn_BinaryOperatorBase.h
 /home/juho/programming/c++/ftn/ftn_BinaryOperatorBase.h
 ftn_BinaryOperatorImplementations.h
 /home/juho/programming/c++/ftn/ftn_BinaryOperatorImplementations.h
+ftn_ArrayView.h
+/home/juho/programming/c++/ftn/ftn_ArrayView.h
 ftn_Span.h
 /home/juho/programming/c++/ftn/ftn_Span.h
 ftn_Array.h
@@ -23,6 +25,8 @@ ftn_ArrayImplementations.h
 /home/juho/programming/c++/ftn/ftn_ArrayImplementations.h
 ftn_ArrayNonConstBase.h
 /home/juho/programming/c++/ftn/ftn_ArrayNonConstBase.h
+ftn_ArrayViewImplementation.h
+/home/juho/programming/c++/ftn/ftn_ArrayViewImplementation.h
 
 /home/juho/programming/c++/ftn/ftn_Array.h
 ftn_ArrayNonConstBase.h
@@ -37,10 +41,24 @@ ftn_typedefs.h
 /home/juho/programming/c++/ftn/ftn_ArrayImplementations.h
 ftn_Array.h
 /home/juho/programming/c++/ftn/ftn_Array.h
+ftn_nonMemberFunctions.h
+/home/juho/programming/c++/ftn/ftn_nonMemberFunctions.h
 
 /home/juho/programming/c++/ftn/ftn_ArrayNonConstBase.h
 ftn_ArrayBase.h
 /home/juho/programming/c++/ftn/ftn_ArrayBase.h
+
+/home/juho/programming/c++/ftn/ftn_ArrayView.h
+ftn_Array.h
+/home/juho/programming/c++/ftn/ftn_Array.h
+
+/home/juho/programming/c++/ftn/ftn_ArrayViewImplementation.h
+ftn_nonMemberFunctions.h
+/home/juho/programming/c++/ftn/ftn_nonMemberFunctions.h
+ftn_Array.h
+/home/juho/programming/c++/ftn/ftn_Array.h
+ftn_ArrayView.h
+/home/juho/programming/c++/ftn/ftn_ArrayView.h
 
 /home/juho/programming/c++/ftn/ftn_BinaryOperatorBase.h
 ftn_OperatorBase.h
@@ -61,6 +79,10 @@ Domi_Slice.hpp
 -
 ftn_typedefs.h
 /home/juho/programming/c++/ftn/ftn_typedefs.h
+
+/home/juho/programming/c++/ftn/ftn_nonMemberFunctions.h
+ftn_ArrayBase.h
+/home/juho/programming/c++/ftn/ftn_ArrayBase.h
 
 /home/juho/programming/c++/ftn/ftn_typedefs.h
 Domi_MDVector.hpp
@@ -96,6 +118,8 @@ limits
 stdlib.h
 -
 stdio.h
+-
+typeinfo
 -
 ftn.h
 /home/juho/programming/c++/ftn/ftn.h
