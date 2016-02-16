@@ -10,6 +10,7 @@
 #include <stdexcept>
 #include <string>
 #include <sstream>
+#include <utility>
 #include <limits>
 
 // Namespace of the Fortran emulator - ftn

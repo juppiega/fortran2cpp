@@ -44,6 +44,21 @@ bool sameShapeAndContents (ArrayBase<Derived, Scalar> const& array1, ArrayBase<O
 	return array1.sameShape(array2) && array1.sameContents(array2);
 }
 
+template<class T>
+std::vector<dim_type> computeArrayStrides(T& dimLengths)
+{
+	int N = dimLengths.size();
+	std::vector<dim_type> strides(N);
+	strides[0] = 1;
+	size_t dimProd = 1;
+	for(int i = 1; i < N; i++)
+	{
+		dimProd *= dimLengths[i-1];
+		strides[i] = dimProd;
+	}
+	return strides;
+}
+
 // &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 
 // &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&

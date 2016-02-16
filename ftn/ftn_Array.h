@@ -15,6 +15,8 @@ class Array: public ArrayNonConstBase<Array<Scalar>, Scalar>
 private:
 	bool isAllocated;
 	std::vector<dim_type> beginIndices;
+	std::vector<dim_type> strides;
+	std::vector<dim_type> dimLengths;
 	std::vector<Scalar> mdArray;
 
 	dim_type findInitializationValues (dim_type initVal);

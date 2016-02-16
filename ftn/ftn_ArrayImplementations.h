@@ -14,8 +14,10 @@ Array<Scalar>::Array (T1 m, OtherTypes... otherInitVals)
 	isAllocated = true;
 	beginIndices.reserve(nDims);
 
-	dim_type dimLengths[nDims] = {findInitializationValues(m), (findInitializationValues(otherInitVals))...};
-	numel = std::accumulate(dimLengths, dimLengths + nDims - 1, 0, std::multiplies<size_t>());
+	dimLengths = {{findInitializationValues(m), (findInitializationValues(otherInitVals))...}};
+	size_t numel = std::accumulate(dimLengths.begin(), dimLengths.end(), 0, std::multiplies<size_t>());
+
+	strides = computeArrayStrides(dimLengths);
 
 	mdArray = std::move(std::vector<Scalar>(numel));
 }
@@ -25,18 +27,19 @@ template<class Derived, class Scalar2>
 Array<Scalar>::Array (ArrayBase<Derived, Scalar2> const& array)
 {
 	isAllocated = true;
-	numel = array.size();
 	int nDims = array.numDims();
 	beginIndices.reserve(nDims);
-	std::vector<dim_type> dimLengths(nDims);
+	dimLengths.reserve(nDims);
 
 	for (int i = 1; i <= nDims; i++)
 	{
 		beginIndices.push_back(array.lbound(i));
-		dimLengths[i-1] = array.size(i);
+		dimLengths.push_back(array.size(i));
 	}
 
-	mdArray = std::move(std::vector<Scalar> (numel));
+	strides = computeArrayStrides(dimLengths);
+
+	mdArray.resize(array.size());
 
 	dim_type length = array.size();
 	for (int i = 0; i < length; i++)
@@ -49,18 +52,19 @@ template<class Scalar>
 Array<Scalar>::Array (Array<Scalar>& array)
 {
 	isAllocated = true;
-	numel = array.size();
 	int nDims = array.numDims();
 	beginIndices.reserve(nDims);
-	std::vector<dim_type> dimLengths(nDims);
+	dimLengths.reserve(nDims);
 
 	for (int i = 1; i <= nDims; i++)
 	{
 		beginIndices.push_back(array.lbound(i));
-		dimLengths[i-1] = array.size(i);
+		dimLengths.push_back(array.size(i));
 	}
 
-	mdArray = std::move(std::vector<Scalar> (numel));
+	strides = computeArrayStrides(dimLengths);
+
+	mdArray.resize(array.size());
 
 	dim_type length = array.size();
 	for (int i = 0; i < length; i++)
@@ -73,7 +77,8 @@ template<class Scalar>
 Array<Scalar>::Array (Array<Scalar> && other) noexcept
 {
 	isAllocated = true;
-	numel = other.numel;
+	dimLengths = std::move(other.dimLengths);
+	strides = std::move(other.strides);
 	beginIndices.assign(other.numDims(), 1);
 	mdArray = std::move(other.mdArray);
 }
@@ -82,7 +87,7 @@ template<class Scalar>
 Array<Scalar>& Array<Scalar>::operator= (Array<Scalar> && other) noexcept
 {
 #ifdef FTN_DEBUG
-	if (numDims() != other.numDims()) // TODO: Vaihda -> any(shape() !=)
+	if (numDims() != other.numDims())
 	{
 		std::ostringstream strStream;
 		strStream << "Trying to assign array of dimension: " << other.numDims() << " into array of dimension: " << numDims();
@@ -93,9 +98,8 @@ Array<Scalar>& Array<Scalar>::operator= (Array<Scalar> && other) noexcept
 	{
 		int nDims = other.numDims();
 		beginIndices.assign(nDims, 1);
-		numel = other.size();
-
-		mdArray = std::move(std::vector<Scalar> (numel));
+		dimLengths = std::move(other.dimLengths);
+		strides = std::move(other.strides);
 
 		isAllocated = true;
 	}
