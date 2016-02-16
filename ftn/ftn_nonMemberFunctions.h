@@ -8,6 +8,8 @@
 #ifndef FTN_NONMEMBERFUNCTIONS_H_
 #define FTN_NONMEMBERFUNCTIONS_H_
 #include "ftn_ArrayBase.h"
+#include <cmath>
+#include <boost/math/special_functions/bessel.hpp>
 
 namespace ftn
 {
@@ -42,7 +44,23 @@ bool sameShapeAndContents (ArrayBase<Derived, Scalar> const& array1, ArrayBase<O
 	return array1.sameShape(array2) && array1.sameContents(array2);
 }
 
-}
+// &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 
+// &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+// Bessel J_N1 to J_N2 (transformational function)
+// &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+template<class T1, class T2, class T3>
+Array<T3> bessel_jn (T1 n1, T2 n2, T3 x)
+{
+	Array<T3> result(n2 - n1 + 1);
+	for (size_t i = 1, n = n1; n <= n2; n++, i++)
+	{
+		result.linear(i) = boost::math::cyl_bessel_j(n, x);
+	}
+	return result;
+}
+// &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+
+}
 
 #endif /* FTN_NONMEMBERFUNCTIONS_H_ */

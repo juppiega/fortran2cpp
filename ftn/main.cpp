@@ -3,7 +3,17 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <typeinfo>
+#include <cmath>
 #include "ftn.h"
+
+namespace N
+{
+	namespace detail
+	{
+		double d;
+	}
+	void printSth(){std::cout<<"foo\n";}
+};
 
 struct S
 {
@@ -11,14 +21,18 @@ struct S
 };
 
 using namespace ftn;
+//using namespace std;
 
 int main()
 {
-
-	Array<double> a(span(-1,0), 2, 2);
+	Array<double> a(2);
 	a = 2.0;
 
-	std::cout << a << std::endl;
+	Array<double> c = a+a;
+
+	std::cout << c(2) << std::endl;
+	std::cout << c << std::endl;
+
 
 	return 0;
 }

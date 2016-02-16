@@ -13,6 +13,8 @@ CMakeFiles/test.dir/main.cpp.o
  /home/juho/programming/c++/ftn/ftn_BinaryOperatorImplementations.h
  /home/juho/programming/c++/ftn/ftn_OperatorBase.h
  /home/juho/programming/c++/ftn/ftn_Span.h
+ /home/juho/programming/c++/ftn/ftn_UnaryOperatorBase.h
+ /home/juho/programming/c++/ftn/ftn_UnaryOperatorImplementation.h
  /home/juho/programming/c++/ftn/ftn_nonMemberFunctions.h
  /home/juho/programming/c++/ftn/ftn_typedefs.h
  /home/juho/programming/c++/ftn/main.cpp
@@ -286,145 +288,6 @@ CMakeFiles/test.dir/main.cpp.o
  /usr/lib/cmake/Trilinos/../../../include/_G_config.h
  /usr/lib/cmake/Trilinos/../../../include/alloca.h
  /usr/lib/cmake/Trilinos/../../../include/assert.h
- /usr/lib/cmake/Trilinos/../../../include/boost/config.hpp
- /usr/lib/cmake/Trilinos/../../../include/boost/config/no_tr1/utility.hpp
- /usr/lib/cmake/Trilinos/../../../include/boost/config/posix_features.hpp
- /usr/lib/cmake/Trilinos/../../../include/boost/config/select_compiler_config.hpp
- /usr/lib/cmake/Trilinos/../../../include/boost/config/select_platform_config.hpp
- /usr/lib/cmake/Trilinos/../../../include/boost/config/select_stdlib_config.hpp
- /usr/lib/cmake/Trilinos/../../../include/boost/config/suffix.hpp
- /usr/lib/cmake/Trilinos/../../../include/boost/detail/workaround.hpp
- /usr/lib/cmake/Trilinos/../../../include/boost/mpl/aux_/adl_barrier.hpp
- /usr/lib/cmake/Trilinos/../../../include/boost/mpl/aux_/config/adl.hpp
- /usr/lib/cmake/Trilinos/../../../include/boost/mpl/aux_/config/arrays.hpp
- /usr/lib/cmake/Trilinos/../../../include/boost/mpl/aux_/config/ctps.hpp
- /usr/lib/cmake/Trilinos/../../../include/boost/mpl/aux_/config/gcc.hpp
- /usr/lib/cmake/Trilinos/../../../include/boost/mpl/aux_/config/intel.hpp
- /usr/lib/cmake/Trilinos/../../../include/boost/mpl/aux_/config/lambda.hpp
- /usr/lib/cmake/Trilinos/../../../include/boost/mpl/aux_/config/msvc.hpp
- /usr/lib/cmake/Trilinos/../../../include/boost/mpl/aux_/config/nttp.hpp
- /usr/lib/cmake/Trilinos/../../../include/boost/mpl/aux_/config/overload_resolution.hpp
- /usr/lib/cmake/Trilinos/../../../include/boost/mpl/aux_/config/preprocessor.hpp
- /usr/lib/cmake/Trilinos/../../../include/boost/mpl/aux_/config/static_constant.hpp
- /usr/lib/cmake/Trilinos/../../../include/boost/mpl/aux_/config/ttp.hpp
- /usr/lib/cmake/Trilinos/../../../include/boost/mpl/aux_/config/workaround.hpp
- /usr/lib/cmake/Trilinos/../../../include/boost/mpl/aux_/integral_wrapper.hpp
- /usr/lib/cmake/Trilinos/../../../include/boost/mpl/aux_/lambda_support.hpp
- /usr/lib/cmake/Trilinos/../../../include/boost/mpl/aux_/na_fwd.hpp
- /usr/lib/cmake/Trilinos/../../../include/boost/mpl/aux_/nttp_decl.hpp
- /usr/lib/cmake/Trilinos/../../../include/boost/mpl/aux_/preprocessor/enum.hpp
- /usr/lib/cmake/Trilinos/../../../include/boost/mpl/aux_/preprocessor/params.hpp
- /usr/lib/cmake/Trilinos/../../../include/boost/mpl/aux_/static_cast.hpp
- /usr/lib/cmake/Trilinos/../../../include/boost/mpl/aux_/template_arity_fwd.hpp
- /usr/lib/cmake/Trilinos/../../../include/boost/mpl/aux_/yes_no.hpp
- /usr/lib/cmake/Trilinos/../../../include/boost/mpl/bool.hpp
- /usr/lib/cmake/Trilinos/../../../include/boost/mpl/bool_fwd.hpp
- /usr/lib/cmake/Trilinos/../../../include/boost/mpl/int.hpp
- /usr/lib/cmake/Trilinos/../../../include/boost/mpl/int_fwd.hpp
- /usr/lib/cmake/Trilinos/../../../include/boost/mpl/integral_c.hpp
- /usr/lib/cmake/Trilinos/../../../include/boost/mpl/integral_c_fwd.hpp
- /usr/lib/cmake/Trilinos/../../../include/boost/mpl/integral_c_tag.hpp
- /usr/lib/cmake/Trilinos/../../../include/boost/non_type.hpp
- /usr/lib/cmake/Trilinos/../../../include/boost/preprocessor/arithmetic/dec.hpp
- /usr/lib/cmake/Trilinos/../../../include/boost/preprocessor/arithmetic/inc.hpp
- /usr/lib/cmake/Trilinos/../../../include/boost/preprocessor/array/data.hpp
- /usr/lib/cmake/Trilinos/../../../include/boost/preprocessor/array/elem.hpp
- /usr/lib/cmake/Trilinos/../../../include/boost/preprocessor/array/size.hpp
- /usr/lib/cmake/Trilinos/../../../include/boost/preprocessor/cat.hpp
- /usr/lib/cmake/Trilinos/../../../include/boost/preprocessor/comma_if.hpp
- /usr/lib/cmake/Trilinos/../../../include/boost/preprocessor/config/config.hpp
- /usr/lib/cmake/Trilinos/../../../include/boost/preprocessor/control/expr_iif.hpp
- /usr/lib/cmake/Trilinos/../../../include/boost/preprocessor/control/if.hpp
- /usr/lib/cmake/Trilinos/../../../include/boost/preprocessor/control/iif.hpp
- /usr/lib/cmake/Trilinos/../../../include/boost/preprocessor/debug/error.hpp
- /usr/lib/cmake/Trilinos/../../../include/boost/preprocessor/detail/auto_rec.hpp
- /usr/lib/cmake/Trilinos/../../../include/boost/preprocessor/detail/check.hpp
- /usr/lib/cmake/Trilinos/../../../include/boost/preprocessor/detail/dmc/auto_rec.hpp
- /usr/lib/cmake/Trilinos/../../../include/boost/preprocessor/detail/is_binary.hpp
- /usr/lib/cmake/Trilinos/../../../include/boost/preprocessor/enum_params.hpp
- /usr/lib/cmake/Trilinos/../../../include/boost/preprocessor/facilities/empty.hpp
- /usr/lib/cmake/Trilinos/../../../include/boost/preprocessor/facilities/overload.hpp
- /usr/lib/cmake/Trilinos/../../../include/boost/preprocessor/inc.hpp
- /usr/lib/cmake/Trilinos/../../../include/boost/preprocessor/iterate.hpp
- /usr/lib/cmake/Trilinos/../../../include/boost/preprocessor/iteration/iterate.hpp
- /usr/lib/cmake/Trilinos/../../../include/boost/preprocessor/list/adt.hpp
- /usr/lib/cmake/Trilinos/../../../include/boost/preprocessor/list/for_each_i.hpp
- /usr/lib/cmake/Trilinos/../../../include/boost/preprocessor/logical/bool.hpp
- /usr/lib/cmake/Trilinos/../../../include/boost/preprocessor/logical/compl.hpp
- /usr/lib/cmake/Trilinos/../../../include/boost/preprocessor/punctuation/comma.hpp
- /usr/lib/cmake/Trilinos/../../../include/boost/preprocessor/punctuation/comma_if.hpp
- /usr/lib/cmake/Trilinos/../../../include/boost/preprocessor/repeat.hpp
- /usr/lib/cmake/Trilinos/../../../include/boost/preprocessor/repetition/detail/dmc/for.hpp
- /usr/lib/cmake/Trilinos/../../../include/boost/preprocessor/repetition/detail/edg/for.hpp
- /usr/lib/cmake/Trilinos/../../../include/boost/preprocessor/repetition/detail/for.hpp
- /usr/lib/cmake/Trilinos/../../../include/boost/preprocessor/repetition/detail/msvc/for.hpp
- /usr/lib/cmake/Trilinos/../../../include/boost/preprocessor/repetition/enum_params.hpp
- /usr/lib/cmake/Trilinos/../../../include/boost/preprocessor/repetition/for.hpp
- /usr/lib/cmake/Trilinos/../../../include/boost/preprocessor/repetition/repeat.hpp
- /usr/lib/cmake/Trilinos/../../../include/boost/preprocessor/slot/detail/def.hpp
- /usr/lib/cmake/Trilinos/../../../include/boost/preprocessor/slot/slot.hpp
- /usr/lib/cmake/Trilinos/../../../include/boost/preprocessor/tuple/eat.hpp
- /usr/lib/cmake/Trilinos/../../../include/boost/preprocessor/tuple/elem.hpp
- /usr/lib/cmake/Trilinos/../../../include/boost/preprocessor/tuple/rem.hpp
- /usr/lib/cmake/Trilinos/../../../include/boost/preprocessor/tuple/to_list.hpp
- /usr/lib/cmake/Trilinos/../../../include/boost/preprocessor/variadic/elem.hpp
- /usr/lib/cmake/Trilinos/../../../include/boost/preprocessor/variadic/size.hpp
- /usr/lib/cmake/Trilinos/../../../include/boost/static_assert.hpp
- /usr/lib/cmake/Trilinos/../../../include/boost/type.hpp
- /usr/lib/cmake/Trilinos/../../../include/boost/type_traits/add_lvalue_reference.hpp
- /usr/lib/cmake/Trilinos/../../../include/boost/type_traits/add_reference.hpp
- /usr/lib/cmake/Trilinos/../../../include/boost/type_traits/add_rvalue_reference.hpp
- /usr/lib/cmake/Trilinos/../../../include/boost/type_traits/broken_compiler_spec.hpp
- /usr/lib/cmake/Trilinos/../../../include/boost/type_traits/config.hpp
- /usr/lib/cmake/Trilinos/../../../include/boost/type_traits/detail/bool_trait_def.hpp
- /usr/lib/cmake/Trilinos/../../../include/boost/type_traits/detail/bool_trait_undef.hpp
- /usr/lib/cmake/Trilinos/../../../include/boost/type_traits/detail/cv_traits_impl.hpp
- /usr/lib/cmake/Trilinos/../../../include/boost/type_traits/detail/false_result.hpp
- /usr/lib/cmake/Trilinos/../../../include/boost/type_traits/detail/ice_and.hpp
- /usr/lib/cmake/Trilinos/../../../include/boost/type_traits/detail/ice_eq.hpp
- /usr/lib/cmake/Trilinos/../../../include/boost/type_traits/detail/ice_not.hpp
- /usr/lib/cmake/Trilinos/../../../include/boost/type_traits/detail/ice_or.hpp
- /usr/lib/cmake/Trilinos/../../../include/boost/type_traits/detail/is_function_ptr_helper.hpp
- /usr/lib/cmake/Trilinos/../../../include/boost/type_traits/detail/is_function_ptr_tester.hpp
- /usr/lib/cmake/Trilinos/../../../include/boost/type_traits/detail/is_mem_fun_pointer_impl.hpp
- /usr/lib/cmake/Trilinos/../../../include/boost/type_traits/detail/is_mem_fun_pointer_tester.hpp
- /usr/lib/cmake/Trilinos/../../../include/boost/type_traits/detail/template_arity_spec.hpp
- /usr/lib/cmake/Trilinos/../../../include/boost/type_traits/detail/type_trait_def.hpp
- /usr/lib/cmake/Trilinos/../../../include/boost/type_traits/detail/type_trait_undef.hpp
- /usr/lib/cmake/Trilinos/../../../include/boost/type_traits/detail/wrap.hpp
- /usr/lib/cmake/Trilinos/../../../include/boost/type_traits/detail/yes_no_type.hpp
- /usr/lib/cmake/Trilinos/../../../include/boost/type_traits/ice.hpp
- /usr/lib/cmake/Trilinos/../../../include/boost/type_traits/integral_constant.hpp
- /usr/lib/cmake/Trilinos/../../../include/boost/type_traits/intrinsics.hpp
- /usr/lib/cmake/Trilinos/../../../include/boost/type_traits/is_abstract.hpp
- /usr/lib/cmake/Trilinos/../../../include/boost/type_traits/is_arithmetic.hpp
- /usr/lib/cmake/Trilinos/../../../include/boost/type_traits/is_array.hpp
- /usr/lib/cmake/Trilinos/../../../include/boost/type_traits/is_class.hpp
- /usr/lib/cmake/Trilinos/../../../include/boost/type_traits/is_const.hpp
- /usr/lib/cmake/Trilinos/../../../include/boost/type_traits/is_convertible.hpp
- /usr/lib/cmake/Trilinos/../../../include/boost/type_traits/is_enum.hpp
- /usr/lib/cmake/Trilinos/../../../include/boost/type_traits/is_float.hpp
- /usr/lib/cmake/Trilinos/../../../include/boost/type_traits/is_function.hpp
- /usr/lib/cmake/Trilinos/../../../include/boost/type_traits/is_integral.hpp
- /usr/lib/cmake/Trilinos/../../../include/boost/type_traits/is_lvalue_reference.hpp
- /usr/lib/cmake/Trilinos/../../../include/boost/type_traits/is_member_function_pointer.hpp
- /usr/lib/cmake/Trilinos/../../../include/boost/type_traits/is_member_pointer.hpp
- /usr/lib/cmake/Trilinos/../../../include/boost/type_traits/is_pointer.hpp
- /usr/lib/cmake/Trilinos/../../../include/boost/type_traits/is_polymorphic.hpp
- /usr/lib/cmake/Trilinos/../../../include/boost/type_traits/is_reference.hpp
- /usr/lib/cmake/Trilinos/../../../include/boost/type_traits/is_rvalue_reference.hpp
- /usr/lib/cmake/Trilinos/../../../include/boost/type_traits/is_same.hpp
- /usr/lib/cmake/Trilinos/../../../include/boost/type_traits/is_scalar.hpp
- /usr/lib/cmake/Trilinos/../../../include/boost/type_traits/is_union.hpp
- /usr/lib/cmake/Trilinos/../../../include/boost/type_traits/is_void.hpp
- /usr/lib/cmake/Trilinos/../../../include/boost/type_traits/is_volatile.hpp
- /usr/lib/cmake/Trilinos/../../../include/boost/type_traits/msvc/remove_bounds.hpp
- /usr/lib/cmake/Trilinos/../../../include/boost/type_traits/msvc/remove_cv.hpp
- /usr/lib/cmake/Trilinos/../../../include/boost/type_traits/msvc/remove_reference.hpp
- /usr/lib/cmake/Trilinos/../../../include/boost/type_traits/msvc/typeof.hpp
- /usr/lib/cmake/Trilinos/../../../include/boost/type_traits/remove_bounds.hpp
- /usr/lib/cmake/Trilinos/../../../include/boost/type_traits/remove_cv.hpp
- /usr/lib/cmake/Trilinos/../../../include/boost/type_traits/remove_reference.hpp
  /usr/lib/cmake/Trilinos/../../../include/ctype.h
  /usr/lib/cmake/Trilinos/../../../include/endian.h
  /usr/lib/cmake/Trilinos/../../../include/features.h
@@ -459,7 +322,6 @@ CMakeFiles/test.dir/main.cpp.o
  /usr/lib/cmake/Trilinos/../../../include/impl/Kokkos_Volatile_Load.hpp
  /usr/lib/cmake/Trilinos/../../../include/impl/Kokkos_spinwait.hpp
  /usr/lib/cmake/Trilinos/../../../include/libio.h
- /usr/lib/cmake/Trilinos/../../../include/limits.h
  /usr/lib/cmake/Trilinos/../../../include/math.h
  /usr/lib/cmake/Trilinos/../../../include/mpi.h
  /usr/lib/cmake/Trilinos/../../../include/mpi_portable_platform.h
@@ -500,7 +362,6 @@ CMakeFiles/test.dir/main.cpp.o
  /usr/lib/cmake/Trilinos/../../../include/stdlib.h
  /usr/lib/cmake/Trilinos/../../../include/string.h
  /usr/lib/cmake/Trilinos/../../../include/time.h
- /usr/lib/cmake/Trilinos/../../../include/unistd.h
  /usr/lib/cmake/Trilinos/../../../include/wchar.h
  /usr/lib/cmake/Trilinos/../../../include/wctype.h
  /usr/lib/cmake/Trilinos/../../../include/xlocale.h

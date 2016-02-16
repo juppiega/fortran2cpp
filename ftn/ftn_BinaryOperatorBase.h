@@ -1,9 +1,10 @@
 #ifndef FTN_BINARYOPERATORBASE_H_
 #define FTN_BINARYOPERATORBASE_H_
 #include "ftn_OperatorBase.h"
+#include <type_traits>
 
 /* TODO
- * -Add shape check to constructor.
+ *
  */
 
 namespace ftn
@@ -12,6 +13,7 @@ namespace ftn
 template<class Derived, class LeftSide, class RightSide, class Scalar>
 class BinaryOperatorBase: public OperatorBase<BinaryOperatorBase<Derived, LeftSide, RightSide, Scalar>, Scalar>
 {
+	template<typename T> struct type { };
 protected:
 	LeftSide const& first;
 	RightSide const& second;
@@ -28,13 +30,18 @@ public:
 		}
 #endif
 	}
+	BinaryOperatorBase (LeftSide const& a, ArrayBase<RightSide, Scalar> const& b) :
+			first(a), second(b){}
+	BinaryOperatorBase (ArrayBase<LeftSide, Scalar> const& a, RightSide const& b) :
+			first(a), second(b){}
+
 	size_t size () const
 	{
-		return first.size();
+		return size(std::is_fundamental<LeftSide>());
 	}
 	size_t size (size_t dimNumber) const
 	{
-		return first.size(dimNumber);
+		return size(dimNumber, std::is_fundamental<LeftSide>());
 	}
 
 	dim_type lbound (dim_type dimNumber) const
@@ -52,7 +59,7 @@ public:
 
 	int numDims () const
 	{
-		return first.numDims();
+		return numDims(std::is_fundamental<LeftSide>());
 	}
 
 	Scalar linear (dim_type index) const
@@ -62,7 +69,7 @@ public:
 
 	Array<dim_type> shape () const
 	{
-		return first.shape();
+		return shape(std::is_fundamental<LeftSide>());
 	}
 
 	Array<dim_type> lbound () const
@@ -79,6 +86,39 @@ public:
 	operator Derived const& () const
 	{
 		return static_cast<const Derived&>(*this);
+	}
+private:
+	size_t size (std::false_type) const
+	{
+		return first.size();
+	}
+	size_t size (std::true_type) const
+	{
+		return second.size();
+	}
+	size_t size (size_t dimNumber, std::false_type) const
+	{
+		return first.size();
+	}
+	size_t size (size_t dimNumber, std::true_type) const
+	{
+		return second.size();
+	}
+	int numDims (std::false_type) const
+	{
+		return first.numDims();
+	}
+	int numDims (std::true_type) const
+	{
+		return second.numDims();
+	}
+	Array<dim_type> shape (std::false_type) const
+	{
+		return first.shape();
+	}
+	Array<dim_type> shape (std::true_type) const
+	{
+		return second.shape();
 	}
 };
 }

@@ -15,15 +15,13 @@ class Array: public ArrayNonConstBase<Array<Scalar>, Scalar>
 private:
 	bool isAllocated;
 	std::vector<dim_type> beginIndices;
-	MDArrayRCP<Scalar> mdArray;
+	std::vector<Scalar> mdArray;
 
 	dim_type findInitializationValues (dim_type initVal);
 	dim_type findInitializationValues (span initVal);
 
-	void indexOutOfBounds (dim_type index, int dimNumber) const;
-	void linearIndexOutOfBounds (dim_type index) const;
-
 public:
+	//using ArrayNonConstBase<Array<Scalar>, Scalar>::operator();
 
 	template<class T1, class... OtherTypes>
 	explicit Array (T1 m, OtherTypes... otherInitVals);
@@ -42,11 +40,27 @@ public:
 
 	Array<Scalar>& operator= (Array<Scalar>& array);
 
-	Scalar operator() (dim_type index) const;
-	Scalar& operator() (dim_type index);
+	Scalar operator() (dim_type m) const;
+	Scalar operator() (dim_type m, dim_type n) const;
+	Scalar operator() (dim_type m, dim_type n, dim_type o) const;
+	Scalar operator() (dim_type m, dim_type n, dim_type o, dim_type p) const;
 
-	ArrayView<Scalar> operator() (span indexSpan) const;
-	ArrayView<Scalar> operator() (span indexSpan);
+	Scalar& operator() (dim_type m);
+	Scalar& operator() (dim_type m, dim_type n);
+	Scalar& operator() (dim_type m, dim_type n, dim_type o);
+	Scalar& operator() (dim_type m, dim_type n, dim_type o, dim_type p);
+
+	template<class T1, class... OtherTypes>
+	ArrayView<Scalar> operator() (T1 m, OtherTypes... otherSpans)
+	{
+		return ArrayNonConstBase<Array<Scalar>, Scalar>::operator()(m,otherSpans...);
+	}
+
+	template<class T1, class... OtherTypes>
+	ArrayView<Scalar> operator() (T1 m, OtherTypes... otherSpans) const
+	{
+		return ArrayNonConstBase<Array<Scalar>, Scalar>::operator()(m,otherSpans...);
+	}
 
 	Scalar linear (dim_type index) const;
 	Scalar& linear (dim_type index);

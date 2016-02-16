@@ -16,6 +16,7 @@ class ArrayView: public ArrayNonConstBase<ArrayView<Scalar>, Scalar>
 {
 private:
 	MDArrayView<Scalar> mdArrayView;
+	std::vector<dim_type> beginIndices;
 
 	void indexOutOfBounds (dim_type index, int dimNumber) const;
 	void linearIndexOutOfBounds (dim_type index) const;
@@ -33,8 +34,27 @@ public:
 
 	ArrayView (ArrayView<Scalar>&& other);
 
-//	Scalar operator() (dim_type index) const;
-//	Scalar& operator() (dim_type index);
+	Scalar operator() (dim_type m) const;
+	Scalar operator() (dim_type m, dim_type n) const;
+	Scalar operator() (dim_type m, dim_type n, dim_type o) const;
+	Scalar operator() (dim_type m, dim_type n, dim_type o, dim_type p) const;
+
+	Scalar& operator() (dim_type m);
+	Scalar& operator() (dim_type m, dim_type n);
+	Scalar& operator() (dim_type m, dim_type n, dim_type o);
+	Scalar& operator() (dim_type m, dim_type n, dim_type o, dim_type p);
+
+	template<class T1, class... OtherTypes>
+	ArrayView<Scalar> operator() (T1 m, OtherTypes... otherSpans)
+	{
+		return ArrayNonConstBase<Array<Scalar>, Scalar>::operator()(m,otherSpans...);
+	}
+
+	template<class T1, class... OtherTypes>
+	ArrayView<Scalar> operator() (T1 m, OtherTypes... otherSpans) const
+	{
+		return ArrayNonConstBase<Array<Scalar>, Scalar>::operator()(m,otherSpans...);
+	}
 
 	Scalar linear (dim_type index) const;
 	Scalar& linear (dim_type index);
@@ -51,6 +71,8 @@ public:
 
 	size_t size () const;
 	size_t size (size_t dimNumber) const;
+
+	operator Scalar&();
 
 //	template<class Derived, class Scalar2>
 //	void reshape (ArrayBase<Derived, Scalar2> const& newDims); // Lisaa Ftn ja Operator Baseen

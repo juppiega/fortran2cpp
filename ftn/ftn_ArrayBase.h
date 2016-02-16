@@ -65,6 +65,8 @@ public:
 		return static_cast<const Derived&>(*this);
 	}
 
+	operator Scalar() const;
+
 	template<class T1, class T2>
 	friend std::ostream& operator<< (std::ostream & os, const ArrayBase<T1, T2>& arr);
 };
@@ -84,6 +86,20 @@ void checkNonNegativeConstructLength(dim_type length)
 		strStream << "The length of an array cannot be negative! Received " << length;
 		throw std::domain_error(strStream.str());
 	}
+}
+
+template<class Derived, class Scalar>
+ArrayBase<Derived, Scalar>::operator Scalar() const
+{
+#ifdef FTN_DEBUG
+	if (size() != 1)
+	{
+		std::ostringstream strStream;
+		strStream << "Trying to convert an array of size " << size() << " into scalar!";
+		throw std::domain_error(strStream.str());
+	}
+#endif
+	return linear(1);
 }
 
 }
