@@ -1,0 +1,7 @@
+14:09:57 **** Clean-only build of configuration Debug for project ftn ****
+make clean 
+rm -rf  ./CMakeFiles/2.8.12.2/CompilerIdCXX/CMakeCXXCompilerId.o  ./CMakeFiles/2.8.12.2/CompilerIdC/CMakeCCompilerId.o  ./main.o  ./CMakeFiles/2.8.12.2/CompilerIdC/CMakeCCompilerId.d  ./CMakeFiles/2.8.12.2/CompilerIdCXX/CMakeCXXCompilerId.d  ./main.d  ftn
+ 
+
+14:09:57 Build Finished (took 61ms)
+
