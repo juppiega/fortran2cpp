@@ -36,7 +36,7 @@ class Program(ProgramPart):
         translation += "{" + linesep # Opening curly brace
         for part in self.subParts: # Add translations of individual parts
             if type(part) is End:
-                translation += "return 0;" + linesep # If end of program, add "return 0;" required by C++
+                translation += "return 0;" + linesep # If end of program, add "return 0;"
             translation += part.translate() + linesep
         return translation
             
