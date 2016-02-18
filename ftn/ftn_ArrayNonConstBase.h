@@ -23,8 +23,8 @@ template<class Derived, class Scalar>
 class ArrayNonConstBase: public ArrayBase<ArrayNonConstBase<Derived, Scalar>, Scalar>
 {
 private:
-	void sliceDomiView(MDArrayView<Scalar>& domiView, span& indexSpan, int dimNum) const;
-	void sliceDomiView(MDArrayView<Scalar>& domiView, dim_type index, int dimNum) const;
+//	void sliceDomiView(MDArrayView<Scalar>& domiView, span& indexSpan, int dimNum) const;
+//	void sliceDomiView(MDArrayView<Scalar>& domiView, dim_type index, int dimNum) const;
 
 public:
 	size_t size () const
@@ -41,10 +41,10 @@ public:
 		return static_cast<Derived const&>(*this).lbound(dimNumber);
 	}
 
-	MDArrayView<Scalar> getMdArrayView() const
-	{
-		return static_cast<Derived const&>(*this).getMdArrayView();
-	}
+//	MDArrayView<Scalar> getMdArrayView() const
+//	{
+//		return static_cast<Derived const&>(*this).getMdArrayView();
+//	}
 
 	template<class T1>
 	ArrayView<Scalar> operator() (T1 m);

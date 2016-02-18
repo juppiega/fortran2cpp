@@ -19,6 +19,7 @@ namespace ftn
 
 typedef int dim_type;
 const dim_type Dynamic = std::numeric_limits<dim_type>::min(); // Create new keyword "Dynamic" for array operation emulation.
+const int maxDims = 8;
 
 }
 

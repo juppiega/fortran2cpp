@@ -1,35 +1,48 @@
-
 #ifndef FTN_SPAN_H_
 #define FTN_SPAN_H_
 
-#include <Domi_Slice.hpp>
 #include "ftn_typedefs.h"
 
 namespace ftn
 {
-/* Class span
- * Inherits: Domi::Slice
- *
- * Fortran-like emulator of Domi::Slice better suited for variable lower bounds and slicing.
- */
-class span: public Domi::Slice
+
+class span // TODO: Kirjoita templatet!
 {
+private:
+	dim_type _begin;
+	dim_type _end;
+	dim_type _stride;
 public:
-	span () :
-			Domi::Slice(Dynamic, Dynamic)
+	span() :
+			_begin(Dynamic), _end(Dynamic), _stride(1)
 	{
 	}
-	span (dim_type length) :
-			Domi::Slice(Dynamic, length)
+	span(dim_type length) :
+			_begin(Dynamic), _end(length), _stride(1)
 	{
 	}
-	span (dim_type beginIndex, dim_type endIndex) :
-			Domi::Slice(beginIndex, endIndex)
+	span(dim_type beginIndex, dim_type endIndex) :
+			_begin(beginIndex), _end(endIndex), _stride(1)
 	{
 	}
-	span (dim_type beginIndex, dim_type endIndex, dim_type stride) :
-			Domi::Slice(beginIndex, endIndex, stride)
+	span(dim_type beginIndex, dim_type endIndex, dim_type stride) :
+			_begin(beginIndex), _end(endIndex), _stride(stride)
 	{
+	}
+
+	dim_type start()
+	{
+		return _begin;
+	}
+
+	dim_type stop()
+	{
+		return _end;
+	}
+
+	dim_type stride()
+	{
+		return _stride;
 	}
 };
 // Class span

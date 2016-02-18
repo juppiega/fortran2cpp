@@ -15,7 +15,6 @@ template<class Scalar>
 class ArrayView: public ArrayNonConstBase<ArrayView<Scalar>, Scalar>
 {
 private:
-	MDArrayView<Scalar> mdArrayView;
 	std::vector<dim_type> beginIndices;
 
 	void indexOutOfBounds (dim_type index, int dimNumber) const;

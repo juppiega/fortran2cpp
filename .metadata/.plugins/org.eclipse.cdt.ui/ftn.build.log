@@ -1,7 +1,238 @@
-12:58:23 **** Clean-only build of configuration Debug for project ftn ****
-make clean 
-rm -rf  ./CMakeFiles/2.8.12.2/CompilerIdCXX/CMakeCXXCompilerId.o  ./CMakeFiles/2.8.12.2/CompilerIdC/CMakeCCompilerId.o  ./main.o  ./CMakeFiles/2.8.12.2/CompilerIdC/CMakeCCompilerId.d  ./CMakeFiles/2.8.12.2/CompilerIdCXX/CMakeCXXCompilerId.d  ./main.d  ftn
- 
+12:46:47 **** Incremental Build of configuration Debug for project ftn ****
+make all 
+Building file: ../main.cpp
+Invoking: GCC C++ Compiler
+g++ -std=c++0x -D__GXX_EXPERIMENTAL_CXX0X__ -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"main.d" -MT"main.o" -o "main.o" "../main.cpp"
+In file included from ../ftn_OperatorBase.h:3:0,
+                 from ../ftn.h:8,
+                 from ../main.cpp:3:
+../ftn_Array.h:17:16: error: non-static data member ‘nDims’ declared ‘constexpr’
+  constexpr int nDims;
+                ^
+../ftn_Array.h:17:16: error: invalid use of non-static data member ‘ftn::Array<Scalar>::nDims’
+../ftn_Array.h:18:23: error: from this location
+  std::array<dim_type, nDims> beginIndices;
+                       ^
+../ftn_Array.h:17:16: error: invalid use of non-static data member ‘ftn::Array<Scalar>::nDims’
+  constexpr int nDims;
+                ^
+../ftn_Array.h:18:23: error: from this location
+  std::array<dim_type, nDims> beginIndices;
+                       ^
+../ftn_Array.h:17:16: error: invalid use of non-static data member ‘ftn::Array<Scalar>::nDims’
+  constexpr int nDims;
+                ^
+../ftn_Array.h:18:23: error: from this location
+  std::array<dim_type, nDims> beginIndices;
+                       ^
+../ftn_Array.h:18:28: error: template argument 2 is invalid
+  std::array<dim_type, nDims> beginIndices;
+                            ^
+../ftn_Array.h:17:16: error: invalid use of non-static data member ‘ftn::Array<Scalar>::nDims’
+  constexpr int nDims;
+                ^
+../ftn_Array.h:19:21: error: from this location
+  std::array<size_t, nDims> strides;
+                     ^
+../ftn_Array.h:17:16: error: invalid use of non-static data member ‘ftn::Array<Scalar>::nDims’
+  constexpr int nDims;
+                ^
+../ftn_Array.h:19:21: error: from this location
+  std::array<size_t, nDims> strides;
+                     ^
+../ftn_Array.h:17:16: error: invalid use of non-static data member ‘ftn::Array<Scalar>::nDims’
+  constexpr int nDims;
+                ^
+../ftn_Array.h:19:21: error: from this location
+  std::array<size_t, nDims> strides;
+                     ^
+../ftn_Array.h:19:26: error: template argument 2 is invalid
+  std::array<size_t, nDims> strides;
+                          ^
+../ftn_Array.h:17:16: error: invalid use of non-static data member ‘ftn::Array<Scalar>::nDims’
+  constexpr int nDims;
+                ^
+../ftn_Array.h:20:23: error: from this location
+  std::array<dim_type, nDims> dimLengths;
+                       ^
+../ftn_Array.h:17:16: error: invalid use of non-static data member ‘ftn::Array<Scalar>::nDims’
+  constexpr int nDims;
+                ^
+../ftn_Array.h:20:23: error: from this location
+  std::array<dim_type, nDims> dimLengths;
+                       ^
+../ftn_Array.h:17:16: error: invalid use of non-static data member ‘ftn::Array<Scalar>::nDims’
+  constexpr int nDims;
+                ^
+../ftn_Array.h:20:23: error: from this location
+  std::array<dim_type, nDims> dimLengths;
+                       ^
+../ftn_Array.h:20:28: error: template argument 2 is invalid
+  std::array<dim_type, nDims> dimLengths;
+                            ^
+In file included from ../ftn.h:10:0,
+                 from ../main.cpp:3:
+../ftn_BinaryOperatorImplementations.h:17:27: warning: ‘linear’ function uses ‘auto’ type specifier without trailing return type [enabled by default]
+  auto linear (dim_type i) const
+                           ^
+../ftn_BinaryOperatorImplementations.h:38:27: warning: ‘linear’ function uses ‘auto’ type specifier without trailing return type [enabled by default]
+  auto linear (dim_type i) const
+                           ^
+../ftn_BinaryOperatorImplementations.h:55:27: warning: ‘linear’ function uses ‘auto’ type specifier without trailing return type [enabled by default]
+  auto linear (dim_type i) const
+                           ^
+../ftn_BinaryOperatorImplementations.h:76:27: warning: ‘linear’ function uses ‘auto’ type specifier without trailing return type [enabled by default]
+  auto linear (dim_type i) const
+                           ^
+../ftn_BinaryOperatorImplementations.h:97:27: warning: ‘linear’ function uses ‘auto’ type specifier without trailing return type [enabled by default]
+  auto linear (dim_type i) const
+                           ^
+../ftn_BinaryOperatorImplementations.h:114:27: warning: ‘linear’ function uses ‘auto’ type specifier without trailing return type [enabled by default]
+  auto linear (dim_type i) const
+                           ^
+../ftn_BinaryOperatorImplementations.h:134:27: warning: ‘linear’ function uses ‘auto’ type specifier without trailing return type [enabled by default]
+  auto linear (dim_type i) const
+                           ^
+../ftn_BinaryOperatorImplementations.h:154:27: warning: ‘linear’ function uses ‘auto’ type specifier without trailing return type [enabled by default]
+  auto linear (dim_type i) const
+                           ^
+../ftn_BinaryOperatorImplementations.h:171:27: warning: ‘linear’ function uses ‘auto’ type specifier without trailing return type [enabled by default]
+  auto linear (dim_type i) const
+                           ^
+../ftn_BinaryOperatorImplementations.h:191:27: warning: ‘linear’ function uses ‘auto’ type specifier without trailing return type [enabled by default]
+  auto linear (dim_type i) const
+                           ^
+../ftn_BinaryOperatorImplementations.h:211:27: warning: ‘linear’ function uses ‘auto’ type specifier without trailing return type [enabled by default]
+  auto linear (dim_type i) const
+                           ^
+../ftn_BinaryOperatorImplementations.h:228:27: warning: ‘linear’ function uses ‘auto’ type specifier without trailing return type [enabled by default]
+  auto linear (dim_type i) const
+                           ^
+../ftn_BinaryOperatorImplementations.h:248:27: warning: ‘linear’ function uses ‘auto’ type specifier without trailing return type [enabled by default]
+  auto linear (dim_type i) const
+                           ^
+../ftn_BinaryOperatorImplementations.h:269:22: warning: ‘atan’ function uses ‘auto’ type specifier without trailing return type [enabled by default]
+ auto atan (T1 y, T2 x)
+                      ^
+../ftn_BinaryOperatorImplementations.h:287:27: warning: ‘bessel_jn’ function uses ‘auto’ type specifier without trailing return type [enabled by default]
+ auto bessel_jn (T1 n, T2 x)
+                           ^
+../ftn_BinaryOperatorImplementations.h:296:27: warning: ‘linear’ function uses ‘auto’ type specifier without trailing return type [enabled by default]
+  auto linear (dim_type i) const
+                           ^
+In file included from ../ftn.h:12:0,
+                 from ../main.cpp:3:
+../ftn_UnaryOperatorImplementation.h:300:21: warning: ‘bessel_j0’ function uses ‘auto’ type specifier without trailing return type [enabled by default]
+ auto bessel_j0 (T1 x)
+                     ^
+../ftn_UnaryOperatorImplementation.h:326:21: warning: ‘bessel_j1’ function uses ‘auto’ type specifier without trailing return type [enabled by default]
+ auto bessel_j1 (T1 x)
+                     ^
+In file included from ../ftn.h:20:0,
+                 from ../main.cpp:3:
+../ftn_ArrayImplementations.h: In constructor ‘ftn::Array<Scalar>::Array(T1, OtherTypes ...)’:
+../ftn_ArrayImplementations.h:12:1: error: expected ‘)’ before ‘{’ token
+ {
+ ^
+../ftn_ArrayImplementations.h:25:25: error: expected primary-expression before ‘class’
+ template<class Derived, class Scalar2>
+                         ^
+../ftn_ArrayImplementations.h:105:25: error: expected primary-expression before ‘class’
+ template<class Derived, class Scalar2>
+                         ^
+../ftn_ArrayImplementations.h:271:25: error: expected primary-expression before ‘class’
+ template<class Derived, class Scalar>
+                         ^
+../ftn_ArrayImplementations.h:272:39: error: expected primary-expression before ‘>’ token
+ void ArrayNonConstBase<Derived, Scalar>::indexOutOfBounds(dim_type index,
+                                       ^
+../ftn_ArrayImplementations.h:272:40: error: ‘::indexOutOfBounds’ has not been declared
+ void ArrayNonConstBase<Derived, Scalar>::indexOutOfBounds(dim_type index,
+                                        ^
+../ftn_ArrayImplementations.h:272:68: error: expected primary-expression before ‘index’
+ void ArrayNonConstBase<Derived, Scalar>::indexOutOfBounds(dim_type index,
+                                                                    ^
+../ftn_ArrayImplementations.h:273:3: error: expected primary-expression before ‘int’
+   int dimNumber) const
+   ^
+../ftn_ArrayImplementations.h:284:25: error: expected primary-expression before ‘class’
+ template<class Derived, class Scalar>
+                         ^
+../ftn_ArrayImplementations.h:285:39: error: expected primary-expression before ‘>’ token
+ void ArrayNonConstBase<Derived, Scalar>::linearIndexOutOfBounds(
+                                       ^
+../ftn_ArrayImplementations.h:285:40: error: ‘::linearIndexOutOfBounds’ has not been declared
+ void ArrayNonConstBase<Derived, Scalar>::linearIndexOutOfBounds(
+                                        ^
+../ftn_ArrayImplementations.h:286:12: error: expected primary-expression before ‘index’
+   dim_type index) const
+            ^
+../ftn_ArrayImplementations.h:297:25: error: expected primary-expression before ‘class’
+ template<class Derived, class Scalar>
+                         ^
+../ftn_ArrayImplementations.h:298:39: error: expected primary-expression before ‘>’ token
+ void ArrayNonConstBase<Derived, Scalar>::wrongDimension(int dimNum) const
+                                       ^
+../ftn_ArrayImplementations.h:298:40: error: ‘::wrongDimension’ has not been declared
+ void ArrayNonConstBase<Derived, Scalar>::wrongDimension(int dimNum) const
+                                        ^
+../ftn_ArrayImplementations.h:298:57: error: expected primary-expression before ‘int’
+ void ArrayNonConstBase<Derived, Scalar>::wrongDimension(int dimNum) const
+                                                         ^
+../ftn_ArrayImplementations.h:523:25: error: expected primary-expression before ‘class’
+ template<class Derived, class Scalar>
+                         ^
+../ftn_ArrayImplementations.h:524:50: error: expected primary-expression before ‘>’ token
+ Array<dim_type> ArrayNonConstBase<Derived, Scalar>::shape() const
+                                                  ^
+../ftn_ArrayImplementations.h:524:51: error: ‘::shape’ has not been declared
+ Array<dim_type> ArrayNonConstBase<Derived, Scalar>::shape() const
+                                                   ^
+../ftn_ArrayImplementations.h:529:25: error: expected primary-expression before ‘class’
+ template<class Derived, class Scalar>
+                         ^
+../ftn_ArrayImplementations.h:530:42: error: expected primary-expression before ‘>’ token
+ Array<dim_type> ArrayBase<Derived, Scalar>::shape() const
+                                          ^
+../ftn_ArrayImplementations.h:530:43: error: ‘::shape’ has not been declared
+ Array<dim_type> ArrayBase<Derived, Scalar>::shape() const
+                                           ^
+../ftn_ArrayImplementations.h:535:25: error: expected primary-expression before ‘class’
+ template<class Derived, class Scalar>
+                         ^
+../ftn_ArrayImplementations.h:536:50: error: expected primary-expression before ‘>’ token
+ Array<dim_type> ArrayNonConstBase<Derived, Scalar>::lbound() const
+                                                  ^
+../ftn_ArrayImplementations.h:536:51: error: ‘::lbound’ has not been declared
+ Array<dim_type> ArrayNonConstBase<Derived, Scalar>::lbound() const
+                                                   ^
+../ftn_ArrayImplementations.h:541:25: error: expected primary-expression before ‘class’
+ template<class Derived, class Scalar>
+                         ^
+../ftn_ArrayImplementations.h:542:42: error: expected primary-expression before ‘>’ token
+ Array<dim_type> ArrayBase<Derived, Scalar>::lbound() const
+                                          ^
+../ftn_ArrayImplementations.h:542:43: error: ‘::lbound’ has not been declared
+ Array<dim_type> ArrayBase<Derived, Scalar>::lbound() const
+                                           ^
+../ftn_ArrayImplementations.h:547:25: error: expected primary-expression before ‘class’
+ template<class Derived, class Scalar>
+                         ^
+../ftn_ArrayImplementations.h:548:50: error: expected primary-expression before ‘>’ token
+ Array<dim_type> ArrayNonConstBase<Derived, Scalar>::ubound() const
+                                                  ^
+../ftn_ArrayImplementations.h:548:51: error: ‘::ubound’ has not been declared
+ Array<dim_type> ArrayNonConstBase<Derived, Scalar>::ubound() const
+                                                   ^
+../ftn_ArrayImplementations.h:553:1: error: expected ‘{’ before ‘}’ token
+ }
+ ^
+../ftn_ArrayImplementations.h: In instantiation of ‘ftn::Array<Scalar>::Array(T1, OtherTypes ...) [with T1 = ftn::span; OtherTypes = {int}; Scalar = double]’:
+../main.cpp:7:39:   required from here
+../ftn_ArrayImplementations.h:11:1: error: uninitialized member ‘ftn::Array<double>::nDims’ with ‘const’ type ‘const int’ [-fpermissive]
+ Array<Scalar>::Array(T1 m, OtherTypes ... otherInitVals) : nDims(1 + sizeof...(OtherTypes)
+ ^
+make: *** [main.o] Error 1
 
-12:58:23 Build Finished (took 66ms)
+12:46:49 Build Finished (took 1s.262ms)
 
