@@ -13,12 +13,12 @@ template<class Scalar>
 class Array: public ArrayNonConstBase<Array<Scalar>, Scalar>
 {
 private:
-	bool isAllocated;
-	int nDims;
-	std::array<dim_type, maxDims> beginIndices;
-	std::array<size_t, maxDims> strides;
-	std::array<dim_type, maxDims> dimLengths;
-	std::vector<Scalar> mdArray;
+	bool _isAllocated;
+	int _nDims;
+	std::array<dim_type, maxDims> _beginIndices;
+	std::array<size_t, maxDims> _strides;
+	std::array<dim_type, maxDims> _dimLengths;
+	std::vector<Scalar> _mdArray;
 
 	dim_type findInitializationValues(dim_type initVal);
 	dim_type findInitializationValues(span initVal);
@@ -53,24 +53,8 @@ public:
 	Scalar& operator()(dim_type m, dim_type n, dim_type o);
 	Scalar& operator()(dim_type m, dim_type n, dim_type o, dim_type p);
 
-	template<class T1, class ... OtherTypes>
-	ArrayView<Scalar> operator()(T1 m, OtherTypes ... otherSpans)
-	{
-		return ArrayNonConstBase<Array<Scalar>, Scalar>::operator()(m,
-				otherSpans...);
-	}
-
-	template<class T1, class ... OtherTypes>
-	ArrayView<Scalar> operator()(T1 m, OtherTypes ... otherSpans) const
-	{
-		return ArrayNonConstBase<Array<Scalar>, Scalar>::operator()(m,
-				otherSpans...);
-	}
-
 	Scalar linear(dim_type index) const;
 	Scalar& linear(dim_type index);
-
-	int numDims() const {return nDims;}
 
 	Array<dim_type> shape() const;
 
@@ -82,6 +66,8 @@ public:
 
 	size_t size() const;
 	size_t size(size_t dimNumber) const;
+
+	int numDims () const;
 
 	template<class Derived, class Scalar2>
 	void reshape(ArrayBase<Derived, Scalar2> const& newDims); // Lisaa Ftn ja Operator Baseen

@@ -47,7 +47,7 @@ bool sameShapeAndContents (ArrayBase<Derived, Scalar> const& array1, ArrayBase<O
 template<size_t N>
 std::array<size_t, N> computeArrayStrides(std::array<dim_type, N>& dimLengths)
 {
-	std::array<dim_type, N> strides;
+	std::array<size_t, N> strides;
 	strides[0] = 1;
 	size_t dimProd = 1;
 	for(int i = 1; i < N; i++)

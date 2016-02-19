@@ -6,7 +6,7 @@ int main()
 {
 	ftn::Array<double> a(ftn::span(0,2),2);
 	a = 2;
-	std::cout << a(0,2) << std::endl;
+	std::cout << a(2,2) << std::endl;
 
 	return 0;
 }

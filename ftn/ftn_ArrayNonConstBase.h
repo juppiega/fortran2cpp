@@ -58,9 +58,6 @@ public:
 	template<class T1, class T2, class T3, class T4>
 	ArrayView<Scalar> operator() (T1 m, T2 n, T3 o, T4 p);
 
-	template<class T1, class T2, class T3, class T4, class T5, class... OtherTypes>
-	ArrayView<Scalar> operator() (T1 m, T2 n, T3 o, T4 p, T5 q, OtherTypes... otherSpans);
-
 	template<class T1>
 	ArrayView<Scalar> operator() (T1 m) const;
 
@@ -72,9 +69,6 @@ public:
 
 	template<class T1, class T2, class T3, class T4>
 	ArrayView<Scalar> operator() (T1 m, T2 n, T3 o, T4 p) const;
-
-	template<class T1, class T2, class T3, class T4, class T5, class... OtherTypes>
-	ArrayView<Scalar> operator() (T1 m, T2 n, T3 o, T4 p, T5 q, OtherTypes... otherSpans) const;
 
 	Scalar operator() (dim_type m) const
 	{
@@ -92,7 +86,6 @@ public:
 	{
 		return static_cast<Derived const&>(*this)(m,n,o,p);
 	}
-	Scalar operator() (dim_type m, dim_type n, dim_type o, dim_type p, dim_type q, va_list& args) const;
 
 	Scalar& operator() (dim_type m)
 	{
@@ -110,7 +103,6 @@ public:
 	{
 		return static_cast<Derived&>(*this)(m,n,o,p);
 	}
-	Scalar& operator() (dim_type m, dim_type n, dim_type o, dim_type p, dim_type q, va_list& args);
 
 	Scalar linear (dim_type index) const
 	{

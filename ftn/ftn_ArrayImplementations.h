@@ -8,75 +8,75 @@ namespace ftn
 
 template<class Scalar>
 template<class T1, class ... OtherTypes>
-Array<Scalar>::Array(T1 m, OtherTypes ... otherInitVals) : nDims(1 + sizeof...(OtherTypes))
+Array<Scalar>::Array(T1 m, OtherTypes ... otherInitVals) : _nDims(1 + sizeof...(OtherTypes))
 {
-	isAllocated = true;
+	_isAllocated = true;
 
-	dimLengths = {findInitializationValues(m), (findInitializationValues(otherInitVals))...};
-	size_t numel = std::accumulate(dimLengths.begin(), dimLengths.end(), 1, std::multiplies<size_t>());
-	//std::cout << numel << std::endl;
+	_dimLengths = {findInitializationValues(m), (findInitializationValues(otherInitVals))...};
+	size_t numel = std::accumulate(_dimLengths.begin(), _dimLengths.begin()+_nDims, 1, std::multiplies<size_t>());
+	//std::cout << _dimLengths[1] << std::endl;
 
-	strides = computeArrayStrides(dimLengths);
+	_strides = computeArrayStrides(_dimLengths);
 
-	mdArray = std::move(std::vector<Scalar>(numel));
+	_mdArray = std::move(std::vector<Scalar>(numel));
 }
 
 template<class Scalar>
 template<class Derived, class Scalar2>
 Array<Scalar>::Array(ArrayBase<Derived, Scalar2> const& array)
 {
-	isAllocated = true;
-	nDims = array.numDims();
+	_isAllocated = true;
+	_nDims = array.numDims();
 
-	for (int i = 1; i <= nDims; i++)
+	for (int i = 1; i <= _nDims; i++)
 	{
-		beginIndices[i-1] = (array.lbound(i));
-		dimLengths[i-1] = (array.size(i));
+		_beginIndices[i-1] = (array.lbound(i));
+		_dimLengths[i-1] = (array.size(i));
 	}
 
-	strides = computeArrayStrides(dimLengths);
+	_strides = computeArrayStrides(_dimLengths);
 
-	mdArray.resize(array.size());
+	_mdArray.resize(array.size());
 
 	dim_type length = array.size();
 	for (int i = 0; i < length; i++)
 	{
-		mdArray[i] = array.linear(i + 1);
+		_mdArray[i] = array.linear(i + 1);
 	}
 }
 
 template<class Scalar>
 Array<Scalar>::Array(Array<Scalar>& array)
 {
-	isAllocated = true;
-	nDims = array.numDims();
+	_isAllocated = true;
+	_nDims = array.numDims();
 
-	for (int i = 1; i <= nDims; i++)
+	for (int i = 1; i <= _nDims; i++)
 	{
-		beginIndices[i-1] = (array.lbound(i));
-		dimLengths[i-1] = push_back(array.size(i));
+		_beginIndices[i-1] = (array.lbound(i));
+		_dimLengths[i-1] = push_back(array.size(i));
 	}
 
-	strides = computeArrayStrides(dimLengths);
+	_strides = computeArrayStrides(_dimLengths);
 
-	mdArray.resize(array.size());
+	_mdArray.resize(array.size());
 
 	dim_type length = array.size();
 	for (int i = 0; i < length; i++)
 	{
-		mdArray[i] = array.linear(i + 1);
+		_mdArray[i] = array.linear(i + 1);
 	}
 }
 
 template<class Scalar>
 Array<Scalar>::Array(Array<Scalar> && other) noexcept
 {
-	isAllocated = true;
-	nDims = other.nDims;
-	dimLengths = std::move(other.dimLengths);
-	strides = std::move(other.strides);
-	beginIndices.fill(1);
-	mdArray = std::move(other.mdArray);
+	_isAllocated = true;
+	_nDims = other._nDims;
+	_dimLengths = std::move(other._dimLengths);
+	_strides = std::move(other._strides);
+	_beginIndices.fill(1);
+	_mdArray = std::move(other._mdArray);
 }
 
 template<class Scalar>
@@ -90,16 +90,16 @@ Array<Scalar>& Array<Scalar>::operator=(Array<Scalar> && other) noexcept
 		throw std::domain_error(strStream.str());
 	}
 #endif
-	if (!isAllocated || !sameShape(*this, other))
+	if (!_isAllocated || !sameShape(*this, other))
 	{
-		beginIndices.fill(1);
-		dimLengths = std::move(other.dimLengths);
-		strides = std::move(other.strides);
+		_beginIndices.fill(1);
+		_dimLengths = std::move(other._dimLengths);
+		_strides = std::move(other._strides);
 
-		isAllocated = true;
+		_isAllocated = true;
 	}
 
-	mdArray = std::move(other.mdArray);
+	_mdArray = std::move(other._mdArray);
 
 	return *this;
 }
@@ -118,26 +118,26 @@ Array<Scalar>& Array<Scalar>::operator=(
 	}
 #endif
 
-	if (!isAllocated || !(sameShape(*this, array)))
+	if (!_isAllocated || !(sameShape(*this, array)))
 	{
 
-		for (int i = 1; i <= nDims; i++)
+		for (int i = 1; i <= _nDims; i++)
 		{
-			beginIndices[i - 1] = array.lbound(i);
-			dimLengths[i - 1] = array.size(i);
+			_beginIndices[i - 1] = array.lbound(i);
+			_dimLengths[i - 1] = array.size(i);
 		}
 
-		mdArray.resize(array.size());
+		_mdArray.resize(array.size());
 
-		strides = computeArrayStrides(dimLengths);
+		_strides = computeArrayStrides(_dimLengths);
 
-		isAllocated = true;
+		_isAllocated = true;
 	}
 
 	dim_type length = array.size();
 	for (int i = 0; i < length; i++)
 	{
-		mdArray[i] = array.linear(i + 1);
+		_mdArray[i] = array.linear(i + 1);
 	}
 
 	return *this;
@@ -153,7 +153,7 @@ Array<Scalar>& Array<Scalar>::operator=(Array<Scalar>& array)
 template<class Scalar>
 int Array<Scalar>::numDims() const
 {
-	return beginIndices.size();
+	return _nDims;
 }
 
 template<class Scalar>
@@ -164,7 +164,7 @@ Array<dim_type> Array<Scalar>::shape() const
 
 	for (int i = 0; i < n; i++)
 	{
-		shape(i + 1) = dimLengths[i];
+		shape(i + 1) = _dimLengths[i];
 	}
 
 	return shape;
@@ -174,8 +174,8 @@ template<class Scalar>
 std::string Array<Scalar>::toString() const
 {
 	std::ostringstream oss;
-	if (!mdArray.empty())
-		std::copy(mdArray.begin(), mdArray.end(),
+	if (!_mdArray.empty())
+		std::copy(_mdArray.begin(), _mdArray.end(),
 				std::ostream_iterator<Scalar>(oss, "    "));
 	return oss.str();
 }
@@ -183,18 +183,18 @@ std::string Array<Scalar>::toString() const
 template<class Scalar>
 dim_type Array<Scalar>::findInitializationValues(dim_type initVal)
 {
-	beginIndices[dimNum()] = 1;
+	_beginIndices[dimNum()] = 1;
 	if (initVal == Dynamic)
 	{
 		return 0;
-		isAllocated = false;
+		_isAllocated = false;
 	}
 	else
 	{
 		if (initVal < 0)
 			initVal = 0;
 		if (initVal == 0)
-			isAllocated = false;
+			_isAllocated = false;
 		return initVal;
 	}
 }
@@ -205,10 +205,10 @@ dim_type Array<Scalar>::findInitializationValues(span initVal)
 	if (initVal.stop() == Dynamic)
 	{
 		if (initVal.start() != Dynamic)
-			beginIndices[dimNum()] = (initVal.start());
+			_beginIndices[dimNum()] = (initVal.start());
 		else
-			beginIndices[dimNum()] = push_back(1);
-		isAllocated = false;
+			_beginIndices[dimNum()] = (1);
+		_isAllocated = false;
 		return 0;
 	}
 	else
@@ -218,18 +218,18 @@ dim_type Array<Scalar>::findInitializationValues(span initVal)
 		{
 			if (initVal.start() <= initVal.stop())
 			{
-				beginIndices[dimNum()] = (initVal.start());
+				_beginIndices[dimNum()] = (initVal.start());
 				length = initVal.stop() - initVal.start() + 1;
 			}
 			else
 			{
-				beginIndices[dimNum()] = (1);
+				_beginIndices[dimNum()] = (1);
 				length = 0;
 			}
 		}
 		else
 		{
-			beginIndices[dimNum()] = (1);
+			_beginIndices[dimNum()] = (1);
 			if (initVal.stop() >= 0)
 			{
 				length = initVal.stop();
@@ -240,7 +240,7 @@ dim_type Array<Scalar>::findInitializationValues(span initVal)
 			}
 		}
 		if (length == 0)
-			isAllocated = false;
+			_isAllocated = false;
 		return length;
 	}
 }
@@ -256,7 +256,7 @@ dim_type Array<Scalar>::lbound(dim_type dimNumber) const
 		throw std::invalid_argument(strStream.str());
 	}
 #endif
-	return beginIndices[dimNumber - 1];
+	return _beginIndices[dimNumber - 1];
 }
 
 template<class Scalar>
@@ -334,7 +334,7 @@ Scalar Array<Scalar>::operator()(dim_type m) const
 	ArrayNonConstBase<Array<Scalar>, Scalar>::wrongDimension(1);
 	ArrayNonConstBase<Array<Scalar>, Scalar>::indexOutOfBounds(m, 1);
 #endif
-	return mdArray[m - beginIndices[0]];
+	return _mdArray[m - _beginIndices[0]];
 }
 
 template<class Scalar>
@@ -345,7 +345,7 @@ Scalar Array<Scalar>::operator()(dim_type m, dim_type n) const
 	ArrayNonConstBase<Array<Scalar>, Scalar>::indexOutOfBounds(m, 1);
 	ArrayNonConstBase<Array<Scalar>, Scalar>::indexOutOfBounds(n, 2);
 #endif
-	return mdArray[(m - beginIndices[0]) + (n - beginIndices[1]) * strides[1]];
+	return _mdArray[(m - _beginIndices[0]) + (n - _beginIndices[1]) * _strides[1]];
 }
 
 template<class Scalar>
@@ -357,8 +357,8 @@ Scalar Array<Scalar>::operator()(dim_type m, dim_type n, dim_type o) const
 	ArrayNonConstBase<Array<Scalar>, Scalar>::indexOutOfBounds(n, 2);
 	ArrayNonConstBase<Array<Scalar>, Scalar>::indexOutOfBounds(o, 3);
 #endif
-	return mdArray[(m - beginIndices[0]) + (n - beginIndices[1]) * strides[1]
-			+ (o - beginIndices[2]) * strides[2]];
+	return _mdArray[(m - _beginIndices[0]) + (n - _beginIndices[1]) * _strides[1]
+			+ (o - _beginIndices[2]) * _strides[2]];
 }
 
 template<class Scalar>
@@ -372,8 +372,8 @@ Scalar Array<Scalar>::operator()(dim_type m, dim_type n, dim_type o,
 	ArrayNonConstBase<Array<Scalar>, Scalar>::indexOutOfBounds(o, 3);
 	ArrayNonConstBase<Array<Scalar>, Scalar>::indexOutOfBounds(p, 4);
 #endif
-	return mdArray[(m - beginIndices[0]) + (n - beginIndices[1])*strides[1] + (o - beginIndices[2])*strides[2] + (p
-			- beginIndices[3])*strides[3]];
+	return _mdArray[(m - _beginIndices[0]) + (n - _beginIndices[1])*_strides[1] + (o - _beginIndices[2])*_strides[2] + (p
+			- _beginIndices[3])*_strides[3]];
 }
 
 template<class Scalar>
@@ -383,7 +383,7 @@ Scalar& Array<Scalar>::operator()(dim_type m)
 	ArrayNonConstBase<Array<Scalar>, Scalar>::wrongDimension(1);
 	ArrayNonConstBase<Array<Scalar>, Scalar>::indexOutOfBounds(m, 1);
 #endif
-	return mdArray[m - beginIndices[0]];
+	return _mdArray[m - _beginIndices[0]];
 }
 
 template<class Scalar>
@@ -394,7 +394,7 @@ Scalar& Array<Scalar>::operator()(dim_type m, dim_type n)
 	ArrayNonConstBase<Array<Scalar>, Scalar>::indexOutOfBounds(m, 1);
 	ArrayNonConstBase<Array<Scalar>, Scalar>::indexOutOfBounds(n, 2);
 #endif
-	return mdArray[(m - beginIndices[0]) + (n - beginIndices[1]) * strides[1]];
+	return _mdArray[(m - _beginIndices[0]) + (n - _beginIndices[1]) * _strides[1]];
 }
 
 template<class Scalar>
@@ -406,8 +406,8 @@ Scalar& Array<Scalar>::operator()(dim_type m, dim_type n, dim_type o)
 	ArrayNonConstBase<Array<Scalar>, Scalar>::indexOutOfBounds(n, 2);
 	ArrayNonConstBase<Array<Scalar>, Scalar>::indexOutOfBounds(o, 3);
 #endif
-	return mdArray[(m - beginIndices[0]) + (n - beginIndices[1]) * strides[1]
-				+ (o - beginIndices[2]) * strides[2]];
+	return _mdArray[(m - _beginIndices[0]) + (n - _beginIndices[1]) * _strides[1]
+				+ (o - _beginIndices[2]) * _strides[2]];
 }
 
 template<class Scalar>
@@ -421,8 +421,8 @@ Scalar& Array<Scalar>::operator()(dim_type m, dim_type n, dim_type o,
 	ArrayNonConstBase<Array<Scalar>, Scalar>::indexOutOfBounds(o, 3);
 	ArrayNonConstBase<Array<Scalar>, Scalar>::indexOutOfBounds(p, 4);
 #endif
-	return mdArray[(m - beginIndices[0]) + (n - beginIndices[1])*strides[1] + (o - beginIndices[2])*strides[2] + (p
-				- beginIndices[3])*strides[3]];
+	return _mdArray[(m - _beginIndices[0]) + (n - _beginIndices[1])*_strides[1] + (o - _beginIndices[2])*_strides[2] + (p
+				- _beginIndices[3])*_strides[3]];
 }
 
 template<class Scalar>
@@ -431,7 +431,7 @@ Scalar Array<Scalar>::linear(dim_type index) const
 #ifdef FTN_DEBUG
 	ArrayNonConstBase<Array<Scalar>, Scalar>::linearIndexOutOfBounds(index);
 #endif
-	return mdArray[index - 1];
+	return _mdArray[index - 1];
 }
 
 template<class Scalar>
@@ -440,13 +440,13 @@ Scalar& Array<Scalar>::linear(dim_type index)
 #ifdef FTN_DEBUG
 	ArrayNonConstBase<Array<Scalar>, Scalar>::linearIndexOutOfBounds(index);
 #endif
-	return mdArray[index - 1];
+	return _mdArray[index - 1];
 }
 
 template<class Scalar>
 size_t Array<Scalar>::size() const
 {
-	return mdArray.size();
+	return _mdArray.size();
 }
 
 template<class Scalar>
@@ -460,7 +460,7 @@ size_t Array<Scalar>::size(size_t dimNumber) const
 		throw std::invalid_argument(strStream.str());
 	}
 #endif
-	return dimLengths[dimNumber - 1];
+	return _dimLengths[dimNumber - 1];
 }
 
 template<class Scalar>
@@ -474,7 +474,7 @@ dim_type Array<Scalar>::ubound(dim_type dimNumber) const
 		throw std::invalid_argument(strStream.str());
 	}
 #endif
-	return beginIndices[dimNumber - 1] + dimLengths[dimNumber - 1] - 1;
+	return _beginIndices[dimNumber - 1] + _dimLengths[dimNumber - 1] - 1;
 }
 
 template<class Scalar>
@@ -512,14 +512,14 @@ template<class Scalar>
 Array<Scalar>& Array<Scalar>::operator=(const Scalar& x)
 {
 #ifdef FTN_DEBUG
-	if (!isAllocated)
+	if (!_isAllocated)
 	{
 		std::ostringstream strStream;
 		strStream << "Attempted to assign a value to an unallocated array!";
 		throw std::logic_error(strStream.str());
 	}
 #endif
-	mdArray.assign(size(), x);
+	_mdArray.assign(size(), x);
 	return *this;
 }
 
