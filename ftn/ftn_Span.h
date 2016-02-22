@@ -17,7 +17,7 @@ public:
 			_begin(Dynamic), _end(Dynamic), _stride(1)
 	{
 	}
-	span(dim_type length) :
+	explicit span(dim_type length) :
 			_begin(Dynamic), _end(length), _stride(1)
 	{
 	}
@@ -30,17 +30,32 @@ public:
 	{
 	}
 
-	dim_type start()
+	void setStart (dim_type ind)
+	{
+		_begin = ind;
+	}
+
+	void setStop (dim_type ind)
+	{
+		_end = ind;
+	}
+
+	void setStride (dim_type st)
+	{
+		_stride = st;
+	}
+
+	dim_type start() const
 	{
 		return _begin;
 	}
 
-	dim_type stop()
+	dim_type stop() const
 	{
 		return _end;
 	}
 
-	dim_type stride()
+	dim_type stride() const
 	{
 		return _stride;
 	}

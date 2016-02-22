@@ -11,6 +11,8 @@
 		<item value="227191" key="searchFlags"/>
 		<item value="false" key="caseSensitive"/>
 		<list key="previousPatterns">
+			<item value="Argument"/>
+			<item value="wrongDimension"/>
 			<item value="ftn_Span"/>
 			<item value="Domi"/>
 			<item value="Teuchos"/>

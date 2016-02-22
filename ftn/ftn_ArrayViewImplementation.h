@@ -1,9 +1,3 @@
-/*
- * ftn_ArrayViewImplementation.h
- *
- *  Created on: Sep 20, 2015
- *      Author: juho
- */
 
 #ifndef FTN_ARRAYVIEWIMPLEMENTATION_H_
 #define FTN_ARRAYVIEWIMPLEMENTATION_H_
@@ -13,23 +7,61 @@
 
 namespace ftn
 {
-template<class Scalar>
-ArrayView<Scalar>::ArrayView (MDArrayView<Scalar>& arrayView) :
-		mdArrayView(arrayView)
+template<class RefType, int nDims, class Scalar>
+template<class T1, class ... OtherTypes>
+ArrayView<RefType, nDims, Scalar>::ArrayView(RefType& arrayRef, T1& m,
+		OtherTypes&... otherInitVals) :
+		_arrayRef(arrayRef)
 {
-	beginIndices.assign(arrayView.numDims(), 1);
+	_dimCounter = 1;
+	_start =
+	{	findStart(m), (findStart(otherInitVals))...};
+	_dimCounter = 1; // Reset counter.
+	_stop =
+	{	findStop(m), (findStop(otherInitVals))...};
+	_stride =
+	{	findStride(m), (findStride(otherInitVals))...};
+
+	for (int i = 0; i < nDims; i++)
+	{
+		_dimLengths[i] = std::max(0, (_stop[i] - _start[i] + _stride[i]) / _stride[i]);
+	}
+
+	size_t cumulativeLength = 1;
+	for (int i = 0; i < nDims; i++)
+	{
+		cumulativeLength *= _dimLengths[i];
+		_cumDimLengths[i] = cumulativeLength;
+	}
+
+	_numel = _cumDimLengths[nDims-1];
+
+	_firstInd = _arrayRef.sub2ind(_start);
+
+	for (int i = 0; i < nDims; i++)
+	{
+		_linStrides[i] = _stride[i] * _arrayRef.linearStride(i+1);
+	}
+	// TODO: LISAA DEBUGGAUS-KOODIA!!!
 }
 
-template<class Scalar>
-ArrayView<Scalar>::ArrayView (ArrayView<Scalar> && other) :
-		mdArrayView(other.mdArrayView)
+template<class RefType, int nDims, class Scalar>
+ArrayView<RefType, nDims, Scalar>::ArrayView(
+		ArrayView<RefType, nDims, Scalar> && other) :
+		_arrayRef(other._arrayRef), _numel(other._numel), _firstInd(other._firstInd), _dimCounter(other._dimCounter)
 {
-	beginIndices = std::move(other.beginIndices);
+	_start = std::move(other._start);
+	_stop = std::move(other._stop);
+	_stride = std::move(other._stride);
+	_dimLengths = std::move(other._dimLengths);
+	_cumDimLengths = std::move(other._cumDimLengths);
+	_linStrides = std::move(other._linStrides);
 }
 
-template<class Scalar>
+template<class RefType, int nDims, class Scalar>
 template<class Derived, class Scalar2>
-ArrayView<Scalar>& ArrayView<Scalar>::operator= (ArrayBase<Derived, Scalar2> const& array)
+ArrayView<RefType, nDims, Scalar>& ArrayView<RefType, nDims, Scalar>::operator=(
+		ArrayBase<Derived, Scalar2> const& array)
 {
 #ifdef FTN_DEBUG
 	if (numDims() != array.numDims())
@@ -38,122 +70,118 @@ ArrayView<Scalar>& ArrayView<Scalar>::operator= (ArrayBase<Derived, Scalar2> con
 		strStream << "Trying to assign array of dimension: " << array.numDims() << " into array subobject of dimension: " << numDims();
 		throw std::domain_error(strStream.str());
 	}
+	if (!sameShape(*this, array))
+	{
+		std::ostringstream strStream;
+		strStream << "Left and right hand sides of the assignment are of different shape!";
+		throw std::domain_error(strStream.str());
+	}
 #endif
 
-	MDArrayView<Scalar> copyTo;
-	if (sameShape(*this, array))
+	size_t length = array.size();
+	for (size_t i = 1; i < length; i++)
 	{
-		copyTo = mdArrayView; // No subobject creation required.
-	}
-	else // We need to create a subView of this, where to copy the elements of array.
-	{
-		MDArrayView<Scalar> shrinkedViewOfThis = mdArrayView;
-		int n = array.numDims();
-		for (int i = 1; i <= n; i++)
-		{
-#ifdef FTN_DEBUG
-			if (array.size(i) > size(i))
-			{
-				std::ostringstream strStream;
-				strStream << "Trying to assign array of shape: " << array.shape() << " into array subobject of shape: " << shape();
-				throw std::domain_error(strStream.str());
-			}
-#endif
-			shrinkedViewOfThis = shrinkedViewOfThis[span(0, array.size(i))];
-		}
-		copyTo = shrinkedViewOfThis;
+		linear(i) = array.linear(i);
 	}
 
-	dim_type length = array.size();
-	for (int i = 0; i < length; i++)
-	{
-		copyTo.arrayView()[i] = array.linear(i + 1);
-	}
 	return *this;
 }
 
-template<class Scalar>
-ArrayView<Scalar>& ArrayView<Scalar>::operator= (ArrayView<Scalar>& array)
+template<class RefType, int nDims, class Scalar>
+ArrayView<RefType, nDims, Scalar>& ArrayView<RefType, nDims, Scalar>::operator=(
+		ArrayView<RefType, nDims, Scalar>& array)
 {
-	ArrayNonConstBase<ArrayView<Scalar>, Scalar>& arrayBaseInstance = array;
+	ArrayNonConstBase<ArrayView<RefType, nDims, Scalar>, Scalar>& arrayBaseInstance =
+			array;
 	this->operator=(arrayBaseInstance);
 }
 
-template<class Scalar>
-int ArrayView<Scalar>::numDims () const
+template<class RefType, int nDims, class Scalar>
+int ArrayView<RefType, nDims, Scalar>::numDims() const
 {
-	return mdArrayView.numDims();
+	return nDims;
 }
 
-template<class Scalar>
-size_t ArrayView<Scalar>::size () const
+template<class RefType, int nDims, class Scalar>
+size_t ArrayView<RefType, nDims, Scalar>::size() const
 {
-	MDArrayView<Scalar> nonConst(mdArrayView); // Fix bug in Domi::MDArrayView
-	return nonConst.size();
+	return _numel;
 }
 
-template<class Scalar>
-size_t ArrayView<Scalar>::size (size_t dimNumber) const
+template<class RefType, int nDims, class Scalar>
+size_t ArrayView<RefType, nDims, Scalar>::size(size_t dimNumber) const
 {
 #ifdef FTN_DEBUG
 	if (dimNumber < 1 || dimNumber > numDims())
 	{
 		std::ostringstream strStream;
-		strStream << "Argument dim = " << dimNumber << " out of range [" << 1 << ", " << numDims() << "]!";
+		strStream << "size argument dim = " << dimNumber << " out of range [" << 1 << ", " << numDims() << "]!";
 		throw std::invalid_argument(strStream.str());
 	}
 #endif
-	return mdArrayView.dimension(dimNumber - 1);
+	return _dimLengths[dimNumber - 1];
 }
 
-template<class Scalar>
-Scalar ArrayView<Scalar>::linear (dim_type index) const
+template<class RefType, int nDims, class Scalar>
+Scalar ArrayView<RefType, nDims, Scalar>::linear(size_t ind) const
 {
 #ifdef FTN_DEBUG
-	linearIndexOutOfBounds(index);
+	ArrayNonConstBase<ArrayView<RefType, nDims, Scalar>, Scalar>::linearIndexOutOfBounds(ind);
 #endif
-	return mdArrayView.arrayView()[index - 1];
+	size_t zb = ind - 1;
+	size_t linInd = _firstInd + (zb % _dimLengths[0]) * _linStrides[0];
+	for (int i = 1; i < nDims; i++)
+	{
+		linInd += ((zb / _cumDimLengths[i-1]) % _dimLengths[i]) * _linStrides[i];
+	}
+	return _arrayRef.linear(linInd);
 }
 
-template<class Scalar>
-Scalar& ArrayView<Scalar>::linear (dim_type index)
+template<class RefType, int nDims, class Scalar>
+Scalar& ArrayView<RefType, nDims, Scalar>::linear(size_t ind)
 {
 #ifdef FTN_DEBUG
-	linearIndexOutOfBounds(index);
+	ArrayNonConstBase<ArrayView<RefType, nDims, Scalar>, Scalar>::linearIndexOutOfBounds(ind);
 #endif
-	return mdArrayView.arrayView()[index - 1];
+	size_t zb = ind - 1;
+	size_t linInd = _firstInd + (zb % _dimLengths[0]) * _linStrides[0];
+	for (int i = 1; i < nDims; i++)
+	{
+		linInd += ((zb / _cumDimLengths[i-1]) % _dimLengths[i]) * _linStrides[i];
+	}
+	return _arrayRef.linear(linInd);
 }
 
-template<class Scalar>
-dim_type ArrayView<Scalar>::lbound (dim_type dimNumber) const
+template<class RefType, int nDims, class Scalar>
+dim_type ArrayView<RefType, nDims, Scalar>::lbound(dim_type dimNumber) const
 {
 #ifdef FTN_DEBUG
 	if (dimNumber < 1 || dimNumber > numDims())
 	{
 		std::ostringstream strStream;
-		strStream << "Argument dim = " << dimNumber << " out of range [" << 1 << ", " << numDims() << "]!";
+		strStream << "lbound argument dim = " << dimNumber << " out of range [" << 1 << ", " << numDims() << "]!";
 		throw std::invalid_argument(strStream.str());
 	}
 #endif
 	return 1;
 }
 
-template<class Scalar>
-Array<dim_type> ArrayView<Scalar>::shape () const
+template<class RefType, int nDims, class Scalar>
+Array<dim_type> ArrayView<RefType, nDims, Scalar>::shape() const
 {
 	int n = numDims();
 	Array<dim_type> shape(n);
 
-	for (int i = 0; i < n; i++)
+	for (int i = 1; i <= n; i++)
 	{
-		shape(i + 1) = mdArrayView.dimension(i);
+		shape(i) = size(i);
 	}
 
 	return shape;
 }
 
-template<class Scalar>
-Array<dim_type> ArrayView<Scalar>::lbound () const
+template<class RefType, int nDims, class Scalar>
+Array<dim_type> ArrayView<RefType, nDims, Scalar>::lbound() const
 {
 	int n = numDims();
 	Array<dim_type> lbounds(n);
@@ -161,58 +189,41 @@ Array<dim_type> ArrayView<Scalar>::lbound () const
 	return lbounds;
 }
 
-template<class Scalar>
-ArrayView<Scalar>& ArrayView<Scalar>::operator= (const Scalar& x)
+// TODO: Scalarit eivat valttamatta samat!
+template<class RefType, int nDims, class Scalar>
+ArrayView<RefType, nDims, Scalar>& ArrayView<RefType, nDims, Scalar>::operator=(
+		const Scalar& x)
 {
-	mdArrayView.assign(x);
+	for (size_t i = 1; i <= _numel; i++)
+	{
+		linear(i) = x;
+	}
 	return *this;
 }
 
-template<class Scalar>
-std::string ArrayView<Scalar>::toString () const
+template<class RefType, int nDims, class Scalar>
+std::string ArrayView<RefType, nDims, Scalar>::toString() const
 {
-	return mdArrayView.toString();
+	Array<Scalar> outp = *this;
+	return outp.toString();
 }
 
-template<class Scalar>
-void ArrayView<Scalar>::indexOutOfBounds (dim_type index, int dimNumber) const
-{
-	if (index < lbound(dimNumber) || index > ubound(dimNumber))
-	{
-		std::ostringstream strStream;
-		strStream << "Index " << index << " out of range [" << lbound(dimNumber) << ", " << ubound(dimNumber) << "]!";
-		throw std::out_of_range(strStream.str());
-	}
-}
-
-template<class Scalar>
-void ArrayView<Scalar>::linearIndexOutOfBounds (dim_type index) const
-{
-	dim_type upperBound = size();
-	if (index < 1 || index > upperBound)
-	{
-		std::ostringstream strStream;
-		strStream << "Index " << index << " out of range [" << 1 << ", " << upperBound << "]!";
-		throw std::out_of_range(strStream.str());
-	}
-}
-
-template<class Scalar>
-dim_type ArrayView<Scalar>::ubound (dim_type dimNumber) const
+template<class RefType, int nDims, class Scalar>
+dim_type ArrayView<RefType, nDims, Scalar>::ubound(dim_type dimNumber) const
 {
 #ifdef FTN_DEBUG
 	if (dimNumber < 1 || dimNumber > numDims())
 	{
 		std::ostringstream strStream;
-		strStream << "Argument dim = " << dimNumber << " out of range [" << 1 << ", " << numDims() << "]!";
+		strStream << "ubound argument dim = " << dimNumber << " out of range [" << 1 << ", " << numDims() << "]!";
 		throw std::invalid_argument(strStream.str());
 	}
 #endif
-	return lbound(dimNumber) + mdArrayView.dimension(dimNumber - 1) - 1;
+	return size(dimNumber);
 }
 
-template<class Scalar>
-Array<dim_type> ArrayView<Scalar>::ubound () const
+template<class RefType, int nDims, class Scalar>
+Array<dim_type> ArrayView<RefType, nDims, Scalar>::ubound() const
 {
 	int n = numDims();
 	Array<dim_type> ubounds(n);
@@ -225,99 +236,226 @@ Array<dim_type> ArrayView<Scalar>::ubound () const
 	return ubounds;
 }
 
-template<class Scalar>
-Scalar ArrayView<Scalar>::operator() (dim_type m) const
+template<class RefType, int nDims, class Scalar>
+inline dim_type ArrayView<RefType, nDims, Scalar>::findStart (span& sp)
 {
-#ifdef FTN_DEBUG
-	ArrayNonConstBase<Array<Scalar>, Scalar>::wrongDimension(1);
-	ArrayNonConstBase<Array<Scalar>, Scalar>::indexOutOfBounds(m, 1);
-#endif
-	mdArrayView(m - beginIndices[0]);
+	dim_type start;
+	if (sp.start() == Dynamic)
+		start = _arrayRef.lbound(_dimCounter);
+	else
+		start = sp.start();
+	_dimCounter++;
+	return start;
 }
 
-template<class Scalar>
-Scalar ArrayView<Scalar>::operator() (dim_type m, dim_type n) const
+template<class RefType, int nDims, class Scalar>
+inline dim_type ArrayView<RefType, nDims, Scalar>::findStop (span& sp)
 {
-#ifdef FTN_DEBUG
-	ArrayNonConstBase<Array<Scalar>, Scalar>::wrongDimension(2);
-	ArrayNonConstBase<Array<Scalar>, Scalar>::indexOutOfBounds(m, 1);
-	ArrayNonConstBase<Array<Scalar>, Scalar>::indexOutOfBounds(n, 2);
-#endif
-	mdArrayView(m - beginIndices[0], n - beginIndices[1]);
+	dim_type stop;
+	if (sp.stop() == Dynamic)
+		stop = _arrayRef.ubound(_dimCounter);
+	else
+		stop = sp.stop();
+	_dimCounter++;
+	return stop;
 }
 
-template<class Scalar>
-Scalar ArrayView<Scalar>::operator() (dim_type m, dim_type n, dim_type o) const
+template<class RefType, int nDims, class Scalar>
+inline dim_type ArrayView<RefType, nDims, Scalar>::findStride (span& sp) const
 {
+	dim_type stride;
+	if (sp.stride() == Dynamic)
+		stride = 1;
+	else
+		stride = sp.stride();
 #ifdef FTN_DEBUG
-	ArrayNonConstBase<Array<Scalar>, Scalar>::wrongDimension(3);
-	ArrayNonConstBase<Array<Scalar>, Scalar>::indexOutOfBounds(m, 1);
-	ArrayNonConstBase<Array<Scalar>, Scalar>::indexOutOfBounds(n, 2);
-	ArrayNonConstBase<Array<Scalar>, Scalar>::indexOutOfBounds(o, 3);
+	if (stride == 0)
+	{
+		std::ostringstream strStream;
+		strStream << "Stride of span cannot be zero!";
+		throw std::invalid_argument(strStream.str());
+	}
 #endif
-	mdArrayView(m - beginIndices[0], n - beginIndices[1], o - beginIndices[2]);
+	return stride;
 }
 
-template<class Scalar>
-Scalar ArrayView<Scalar>::operator() (dim_type m, dim_type n, dim_type o, dim_type p) const
+template<class RefType, int nDims, class Scalar>
+Scalar ArrayView<RefType, nDims, Scalar>::zb(dim_type m) const
 {
-#ifdef FTN_DEBUG
-	ArrayNonConstBase<Array<Scalar>, Scalar>::wrongDimension(4);
-	ArrayNonConstBase<Array<Scalar>, Scalar>::indexOutOfBounds(m, 1);
-	ArrayNonConstBase<Array<Scalar>, Scalar>::indexOutOfBounds(n, 2);
-	ArrayNonConstBase<Array<Scalar>, Scalar>::indexOutOfBounds(o, 3);
-	ArrayNonConstBase<Array<Scalar>, Scalar>::indexOutOfBounds(p, 4);
-#endif
-	mdArrayView(m - beginIndices[0], n - beginIndices[1], o - beginIndices[2], p - beginIndices[3]);
+	return _arrayRef(_start[0] + m * _stride[0]);
 }
 
-template<class Scalar>
-Scalar& ArrayView<Scalar>::operator() (dim_type m)
+template<class RefType, int nDims, class Scalar>
+Scalar ArrayView<RefType, nDims, Scalar>::zb(dim_type m,
+		dim_type n) const
 {
-#ifdef FTN_DEBUG
-	ArrayNonConstBase<Array<Scalar>, Scalar>::indexOutOfBounds(m, 1);
-#endif
-	mdArrayView(m - beginIndices[0]);
+	return _arrayRef(_start[0] + m * _stride[0],
+			  _start[1] + n * _stride[1]);
 }
 
-template<class Scalar>
-Scalar& ArrayView<Scalar>::operator() (dim_type m, dim_type n)
+template<class RefType, int nDims, class Scalar>
+Scalar ArrayView<RefType, nDims, Scalar>::zb(dim_type m, dim_type n,
+		dim_type o) const
 {
-#ifdef FTN_DEBUG
-	ArrayNonConstBase<Array<Scalar>, Scalar>::wrongDimension(2);
-	ArrayNonConstBase<Array<Scalar>, Scalar>::indexOutOfBounds(m, 1);
-	ArrayNonConstBase<Array<Scalar>, Scalar>::indexOutOfBounds(n, 2);
-#endif
-	mdArrayView(m - beginIndices[0], n - beginIndices[1]);
+	return _arrayRef(_start[0] + m * _stride[0],
+			  _start[1] + n * _stride[1],
+			  _start[2] + o * _stride[2]);
 }
 
-template<class Scalar>
-Scalar& ArrayView<Scalar>::operator() (dim_type m, dim_type n, dim_type o)
+template<class RefType, int nDims, class Scalar>
+Scalar ArrayView<RefType, nDims, Scalar>::zb(dim_type m, dim_type n,
+		dim_type o, dim_type p) const
 {
-#ifdef FTN_DEBUG
-	ArrayNonConstBase<Array<Scalar>, Scalar>::wrongDimension(3);
-	ArrayNonConstBase<Array<Scalar>, Scalar>::indexOutOfBounds(m, 1);
-	ArrayNonConstBase<Array<Scalar>, Scalar>::indexOutOfBounds(n, 2);
-	ArrayNonConstBase<Array<Scalar>, Scalar>::indexOutOfBounds(o, 3);
-#endif
-	mdArrayView(m - beginIndices[0], n - beginIndices[1], o - beginIndices[2]);
+	return _arrayRef(_start[0] + m * _stride[0],
+			  _start[1] + n * _stride[1],
+			  _start[2] + o * _stride[2],
+			  _start[3] + p * _stride[3]);
 }
 
-template<class Scalar>
-Scalar& ArrayView<Scalar>::operator() (dim_type m, dim_type n, dim_type o, dim_type p)
+template<class RefType, int nDims, class Scalar>
+Scalar& ArrayView<RefType, nDims, Scalar>::zb(dim_type m)
 {
-#ifdef FTN_DEBUG
-	ArrayNonConstBase<Array<Scalar>, Scalar>::wrongDimension(4);
-	ArrayNonConstBase<Array<Scalar>, Scalar>::indexOutOfBounds(m, 1);
-	ArrayNonConstBase<Array<Scalar>, Scalar>::indexOutOfBounds(n, 2);
-	ArrayNonConstBase<Array<Scalar>, Scalar>::indexOutOfBounds(o, 3);
-	ArrayNonConstBase<Array<Scalar>, Scalar>::indexOutOfBounds(p, 4);
-#endif
-	mdArrayView(m - beginIndices[0], n - beginIndices[1], o - beginIndices[2], p - beginIndices[3]);
+	return _arrayRef(_start[0] + m * _stride[0]);
 }
 
-template<class Scalar>
-ArrayView<Scalar>::operator Scalar&()
+template<class RefType, int nDims, class Scalar>
+Scalar& ArrayView<RefType, nDims, Scalar>::zb(dim_type m, dim_type n)
+{
+	return _arrayRef(_start[0] + m * _stride[0],
+			  _start[1] + n * _stride[1]);
+}
+
+template<class RefType, int nDims, class Scalar>
+Scalar& ArrayView<RefType, nDims, Scalar>::zb(dim_type m, dim_type n,
+		dim_type o)
+{
+	return _arrayRef(_start[0] + m * _stride[0],
+			  _start[1] + n * _stride[1],
+			  _start[2] + o * _stride[2]);
+}
+
+template<class RefType, int nDims, class Scalar>
+Scalar& ArrayView<RefType, nDims, Scalar>::zb(dim_type m, dim_type n,
+		dim_type o, dim_type p)
+{
+	return _arrayRef(_start[0] + m * _stride[0],
+			  _start[1] + n * _stride[1],
+			  _start[2] + o * _stride[2],
+			  _start[3] + p * _stride[3]);
+}
+
+// @formatter:off
+template<class RefType, int nDims, class Scalar>
+Scalar ArrayView<RefType, nDims, Scalar>::operator()(dim_type m) const
+{
+#ifdef FTN_DEBUG
+	ArrayNonConstBase<ArrayView<RefType, nDims, Scalar>, Scalar>::wrongDimension(1);
+	ArrayNonConstBase<ArrayView<RefType, nDims, Scalar>, Scalar>::indexOutOfBounds(m, 1);
+#endif
+	return _arrayRef(_start[0] + (m - 1) * _stride[0]);
+}
+
+template<class RefType, int nDims, class Scalar>
+Scalar ArrayView<RefType, nDims, Scalar>::operator()(dim_type m,
+		dim_type n) const
+{
+#ifdef FTN_DEBUG
+	ArrayNonConstBase<ArrayView<RefType, nDims, Scalar>, Scalar>::wrongDimension(2);
+	ArrayNonConstBase<ArrayView<RefType, nDims, Scalar>, Scalar>::indexOutOfBounds(m, 1);
+	ArrayNonConstBase<ArrayView<RefType, nDims, Scalar>, Scalar>::indexOutOfBounds(n, 2);
+#endif
+	return _arrayRef(_start[0] + (m - 1) * _stride[0],
+			  _start[1] + (n - 1) * _stride[1]);
+}
+
+template<class RefType, int nDims, class Scalar>
+Scalar ArrayView<RefType, nDims, Scalar>::operator()(dim_type m, dim_type n,
+		dim_type o) const
+{
+#ifdef FTN_DEBUG
+	ArrayNonConstBase<ArrayView<RefType, nDims, Scalar>, Scalar>::wrongDimension(3);
+	ArrayNonConstBase<ArrayView<RefType, nDims, Scalar>, Scalar>::indexOutOfBounds(m, 1);
+	ArrayNonConstBase<ArrayView<RefType, nDims, Scalar>, Scalar>::indexOutOfBounds(n, 2);
+	ArrayNonConstBase<ArrayView<RefType, nDims, Scalar>, Scalar>::indexOutOfBounds(o, 3);
+#endif
+	return _arrayRef(_start[0] + (m - 1) * _stride[0],
+			  _start[1] + (n - 1) * _stride[1],
+			  _start[2] + (o - 1) * _stride[2]);
+}
+
+template<class RefType, int nDims, class Scalar>
+Scalar ArrayView<RefType, nDims, Scalar>::operator()(dim_type m, dim_type n,
+		dim_type o, dim_type p) const
+{
+#ifdef FTN_DEBUG
+	ArrayNonConstBase<ArrayView<RefType, nDims, Scalar>, Scalar>::wrongDimension(4);
+	ArrayNonConstBase<ArrayView<RefType, nDims, Scalar>, Scalar>::indexOutOfBounds(m, 1);
+	ArrayNonConstBase<ArrayView<RefType, nDims, Scalar>, Scalar>::indexOutOfBounds(n, 2);
+	ArrayNonConstBase<ArrayView<RefType, nDims, Scalar>, Scalar>::indexOutOfBounds(o, 3);
+	ArrayNonConstBase<ArrayView<RefType, nDims, Scalar>, Scalar>::indexOutOfBounds(p, 4);
+#endif
+	return _arrayRef(_start[0] + (m - 1) * _stride[0],
+			  _start[1] + (n - 1) * _stride[1],
+			  _start[2] + (o - 1) * _stride[2],
+			  _start[3] + (p - 1) * _stride[3]);
+}
+
+template<class RefType, int nDims, class Scalar>
+Scalar& ArrayView<RefType, nDims, Scalar>::operator()(dim_type m)
+{
+#ifdef FTN_DEBUG
+	ArrayNonConstBase<ArrayView<RefType, nDims, Scalar>, Scalar>::wrongDimension(1);
+	ArrayNonConstBase<ArrayView<RefType, nDims, Scalar>, Scalar>::indexOutOfBounds(m, 1);
+#endif
+	return _arrayRef(_start[0] + (m - 1) * _stride[0]);
+}
+
+template<class RefType, int nDims, class Scalar>
+Scalar& ArrayView<RefType, nDims, Scalar>::operator()(dim_type m, dim_type n)
+{
+#ifdef FTN_DEBUG
+	ArrayNonConstBase<ArrayView<RefType, nDims, Scalar>, Scalar>::wrongDimension(2);
+	ArrayNonConstBase<ArrayView<RefType, nDims, Scalar>, Scalar>::indexOutOfBounds(m, 1);
+	ArrayNonConstBase<ArrayView<RefType, nDims, Scalar>, Scalar>::indexOutOfBounds(n, 2);
+#endif
+	return _arrayRef(_start[0] + (m - 1) * _stride[0],
+			  _start[1] + (n - 1) * _stride[1]);
+}
+
+template<class RefType, int nDims, class Scalar>
+Scalar& ArrayView<RefType, nDims, Scalar>::operator()(dim_type m, dim_type n,
+		dim_type o)
+{
+#ifdef FTN_DEBUG
+	ArrayNonConstBase<ArrayView<RefType, nDims, Scalar>, Scalar>::wrongDimension(3);
+	ArrayNonConstBase<ArrayView<RefType, nDims, Scalar>, Scalar>::indexOutOfBounds(m, 1);
+	ArrayNonConstBase<ArrayView<RefType, nDims, Scalar>, Scalar>::indexOutOfBounds(n, 2);
+	ArrayNonConstBase<ArrayView<RefType, nDims, Scalar>, Scalar>::indexOutOfBounds(o, 3);
+#endif
+	return _arrayRef(_start[0] + (m - 1) * _stride[0],
+			  _start[1] + (n - 1) * _stride[1],
+			  _start[2] + (o - 1) * _stride[2]);
+}
+
+template<class RefType, int nDims, class Scalar>
+Scalar& ArrayView<RefType, nDims, Scalar>::operator()(dim_type m, dim_type n,
+		dim_type o, dim_type p)
+{
+#ifdef FTN_DEBUG
+	ArrayNonConstBase<ArrayView<RefType, nDims, Scalar>, Scalar>::wrongDimension(4);
+	ArrayNonConstBase<ArrayView<RefType, nDims, Scalar>, Scalar>::indexOutOfBounds(m, 1);
+	ArrayNonConstBase<ArrayView<RefType, nDims, Scalar>, Scalar>::indexOutOfBounds(n, 2);
+	ArrayNonConstBase<ArrayView<RefType, nDims, Scalar>, Scalar>::indexOutOfBounds(o, 3);
+	ArrayNonConstBase<ArrayView<RefType, nDims, Scalar>, Scalar>::indexOutOfBounds(p, 4);
+#endif
+	return _arrayRef(_start[0] + (m - 1) * _stride[0],
+			  _start[1] + (n - 1) * _stride[1],
+			  _start[2] + (o - 1) * _stride[2],
+			  _start[3] + (p - 1) * _stride[3]);
+}
+
+template<class RefType, int nDims, class Scalar>
+ArrayView<RefType, nDims, Scalar>::operator Scalar&()
 {
 #ifdef FTN_DEBUG
 	if (size() != 1)
@@ -329,6 +467,7 @@ ArrayView<Scalar>::operator Scalar&()
 #endif
 	return linear(1);
 }
+// @formatter:on
 
 /*
  * ArrayNonConstBase functions depending on ArrayView implementation:
@@ -336,203 +475,149 @@ ArrayView<Scalar>::operator Scalar&()
 
 template<class Derived, class Scalar>
 template<class T1>
-ArrayView<Scalar> ArrayNonConstBase<Derived, Scalar>::operator() (T1 m)
+ArrayView<ArrayNonConstBase<Derived, Scalar>, 1, Scalar> ArrayNonConstBase<Derived, Scalar>::operator()(
+		T1 m)
 {
-	MDArrayView<Scalar> domiView = getMdArrayView();
-
-	constexpr int nDims = 1;
+	constexpr int thisDims = 1;
 #ifdef FTN_DEBUG
-	if (nDims != numDims())
+	if (thisDims != numDims())
 	{
 		std::ostringstream strStream;
-		strStream << "Trying to reference an array of dimension: " << numDims() << " by providing " << nDims << " parameters to operator()!";
+		strStream << "Trying to reference an array of dimension: " << numDims() << " by providing " << 1 << " parameters to operator()!";
 		throw std::domain_error(strStream.str());
 	}
 #endif
-	sliceDomiView(domiView, m, 1);
 
-	ArrayView<Scalar> result = domiView;
-
-	return result;
+	return ArrayView<ArrayNonConstBase<Derived, Scalar>, thisDims, Scalar> (*this, m);
 }
 
 template<class Derived, class Scalar>
 template<class T1, class T2>
-ArrayView<Scalar> ArrayNonConstBase<Derived, Scalar>::operator() (T1 m, T2 n)
+ArrayView<ArrayNonConstBase<Derived, Scalar>, 2, Scalar> ArrayNonConstBase<Derived, Scalar>::operator()(
+		T1 m, T2 n)
 {
-	MDArrayView<Scalar> domiView = getMdArrayView();
-
-	constexpr int nDims = 2;
+	constexpr int thisDims = 2;
 #ifdef FTN_DEBUG
-	if (nDims != numDims())
+	if (thisDims != numDims())
 	{
 		std::ostringstream strStream;
-		strStream << "Trying to reference an array of dimension: " << numDims() << " by providing " << nDims << " parameters to operator()!";
+		strStream << "Trying to reference an array of dimension: " << numDims() << " by providing " << 1 << " parameters to operator()!";
 		throw std::domain_error(strStream.str());
 	}
 #endif
-	sliceDomiView(domiView, m, 1);
-	sliceDomiView(domiView, n, 2);
 
-	ArrayView<Scalar> result = domiView;
-
-	return result;
+	return ArrayView<ArrayNonConstBase<Derived, Scalar>, thisDims, Scalar> (*this, m, n);
 }
 
 template<class Derived, class Scalar>
 template<class T1, class T2, class T3>
-ArrayView<Scalar> ArrayNonConstBase<Derived, Scalar>::operator() (T1 m, T2 n, T3 o)
+ArrayView<ArrayNonConstBase<Derived, Scalar>, 3, Scalar> ArrayNonConstBase<Derived, Scalar>::operator()(
+		T1 m, T2 n, T3 o)
 {
-	MDArrayView<Scalar> domiView = getMdArrayView();
-
-	constexpr int nDims = 3;
+	constexpr int thisDims = 3;
 #ifdef FTN_DEBUG
-	if (nDims != numDims())
+	if (thisDims != numDims())
 	{
 		std::ostringstream strStream;
-		strStream << "Trying to reference an array of dimension: " << numDims() << " by providing " << nDims << " parameters to operator()!";
+		strStream << "Trying to reference an array of dimension: " << numDims() << " by providing " << 1 << " parameters to operator()!";
 		throw std::domain_error(strStream.str());
 	}
 #endif
-	sliceDomiView(domiView, m, 1);
-	sliceDomiView(domiView, n, 2);
-	sliceDomiView(domiView, o, 3);
 
-	ArrayView<Scalar> result = domiView;
-
-	return result;
+	return ArrayView<ArrayNonConstBase<Derived, Scalar>, thisDims, Scalar> (*this, m, n, o);
 }
 
 template<class Derived, class Scalar>
 template<class T1, class T2, class T3, class T4>
-ArrayView<Scalar> ArrayNonConstBase<Derived, Scalar>::operator() (T1 m, T2 n, T3 o, T4 p)
+ArrayView<ArrayNonConstBase<Derived, Scalar>, 4, Scalar> ArrayNonConstBase<Derived, Scalar>::operator()(
+		T1 m, T2 n, T3 o, T4 p)
 {
-	MDArrayView<Scalar> domiView = getMdArrayView();
-
-	constexpr int nDims = 4;
+	constexpr int thisDims = 4;
 #ifdef FTN_DEBUG
-	if (nDims != numDims())
+	if (thisDims != numDims())
 	{
 		std::ostringstream strStream;
-		strStream << "Trying to reference an array of dimension: " << numDims() << " by providing " << nDims << " parameters to operator()!";
+		strStream << "Trying to reference an array of dimension: " << numDims() << " by providing " << 1 << " parameters to operator()!";
 		throw std::domain_error(strStream.str());
 	}
 #endif
-	sliceDomiView(domiView, m, 1);
-	sliceDomiView(domiView, n, 2);
-	sliceDomiView(domiView, o, 3);
-	sliceDomiView(domiView, p, 4);
 
-	ArrayView<Scalar> result = domiView;
-
-	return result;
+	return ArrayView<ArrayNonConstBase<Derived, Scalar>, thisDims, Scalar> (*this, m, n, o, p);
 }
+
 
 template<class Derived, class Scalar>
 template<class T1>
-ArrayView<Scalar> ArrayNonConstBase<Derived, Scalar>::operator() (T1 m) const
+ArrayView<ArrayNonConstBase<Derived, Scalar>, 1, Scalar> ArrayNonConstBase<Derived, Scalar>::operator()(
+		T1 m) const
 {
-	MDArrayView<Scalar> domiView = getMdArrayView();
-
-	constexpr int nDims = 1;
+	constexpr int thisDims = 1;
 #ifdef FTN_DEBUG
-	if (nDims != numDims())
+	if (thisDims != numDims())
 	{
 		std::ostringstream strStream;
-		strStream << "Trying to reference an array of dimension: " << numDims() << " by providing " << nDims << " parameters to operator()!";
+		strStream << "Trying to reference an array of dimension: " << numDims() << " by providing " << 1 << " parameters to operator()!";
 		throw std::domain_error(strStream.str());
 	}
 #endif
-	sliceDomiView(domiView, m, 1);
 
-	ArrayView<Scalar> result = domiView;
-
-	return result;
+	return ArrayView<ArrayNonConstBase<Derived, Scalar>, thisDims, Scalar> (*this, m);
 }
 
 template<class Derived, class Scalar>
 template<class T1, class T2>
-ArrayView<Scalar> ArrayNonConstBase<Derived, Scalar>::operator() (T1 m, T2 n) const
+ArrayView<ArrayNonConstBase<Derived, Scalar>, 2, Scalar> ArrayNonConstBase<Derived, Scalar>::operator()(
+		T1 m, T2 n) const
 {
-	MDArrayView<Scalar> domiView = getMdArrayView();
-
-	constexpr int nDims = 2;
+	constexpr int thisDims = 2;
 #ifdef FTN_DEBUG
-	if (nDims != numDims())
+	if (thisDims != numDims())
 	{
 		std::ostringstream strStream;
-		strStream << "Trying to reference an array of dimension: " << numDims() << " by providing " << nDims << " parameters to operator()!";
+		strStream << "Trying to reference an array of dimension: " << numDims() << " by providing " << 1 << " parameters to operator()!";
 		throw std::domain_error(strStream.str());
 	}
 #endif
-	sliceDomiView(domiView, m, 1);
-	sliceDomiView(domiView, n, 2);
 
-	ArrayView<Scalar> result = domiView;
-
-	return result;
+	return ArrayView<ArrayNonConstBase<Derived, Scalar>, thisDims, Scalar> (*this, m, n);
 }
 
 template<class Derived, class Scalar>
 template<class T1, class T2, class T3>
-ArrayView<Scalar> ArrayNonConstBase<Derived, Scalar>::operator() (T1 m, T2 n, T3 o) const
+ArrayView<ArrayNonConstBase<Derived, Scalar>, 3, Scalar> ArrayNonConstBase<Derived, Scalar>::operator()(
+		T1 m, T2 n, T3 o) const
 {
-	MDArrayView<Scalar> domiView = getMdArrayView();
-
-	constexpr int nDims = 3;
+	constexpr int thisDims = 3;
 #ifdef FTN_DEBUG
-	if (nDims != numDims())
+	if (thisDims != numDims())
 	{
 		std::ostringstream strStream;
-		strStream << "Trying to reference an array of dimension: " << numDims() << " by providing " << nDims << " parameters to operator()!";
+		strStream << "Trying to reference an array of dimension: " << numDims() << " by providing " << 1 << " parameters to operator()!";
 		throw std::domain_error(strStream.str());
 	}
 #endif
-	sliceDomiView(domiView, m, 1);
-	sliceDomiView(domiView, n, 2);
-	sliceDomiView(domiView, o, 3);
 
-	ArrayView<Scalar> result = domiView;
-
-	return result;
+	return ArrayView<ArrayNonConstBase<Derived, Scalar>, thisDims, Scalar> (*this, m, n, o);
 }
 
 template<class Derived, class Scalar>
 template<class T1, class T2, class T3, class T4>
-ArrayView<Scalar> ArrayNonConstBase<Derived, Scalar>::operator() (T1 m, T2 n, T3 o, T4 p) const
+ArrayView<ArrayNonConstBase<Derived, Scalar>, 4, Scalar> ArrayNonConstBase<Derived, Scalar>::operator()(
+		T1 m, T2 n, T3 o, T4 p) const
 {
-	MDArrayView<Scalar> domiView = getMdArrayView();
-
-	constexpr int nDims = 4;
+	constexpr int thisDims = 4;
 #ifdef FTN_DEBUG
-	if (nDims != numDims())
+	if (thisDims != numDims())
 	{
 		std::ostringstream strStream;
-		strStream << "Trying to reference an array of dimension: " << numDims() << " by providing " << nDims << " parameters to operator()!";
+		strStream << "Trying to reference an array of dimension: " << numDims() << " by providing " << 1 << " parameters to operator()!";
 		throw std::domain_error(strStream.str());
 	}
 #endif
-	sliceDomiView(domiView, m, 1);
-	sliceDomiView(domiView, n, 2);
-	sliceDomiView(domiView, o, 3);
-	sliceDomiView(domiView, p, 4);
 
-	ArrayView<Scalar> result = domiView;
-
-	return result;
+	return ArrayView<ArrayNonConstBase<Derived, Scalar>, thisDims, Scalar> (*this, m, n, o, p);
 }
 
-struct DimObject
-{
-	int activeMember;
-	union dimUnion
-	{
-		dim_type* index;
-		span* sp;
-	} dU;
-
-	DimObject(dim_type* i) : activeMember(0){dU.index = i;}
-	DimObject(span* s) : activeMember(1){dU.sp = s;}
-};
+} // namespace ftn
 
 #endif /* FTN_ARRAYVIEWIMPLEMENTATION_H_ */

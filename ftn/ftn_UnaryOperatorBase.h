@@ -43,7 +43,7 @@ public:
 		return 1;
 	}
 
-	Scalar linear (dim_type index) const
+	Scalar linear (size_t index) const
 	{
 		return static_cast<Derived const&>(*this).linear(index);
 	}

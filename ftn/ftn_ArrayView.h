@@ -11,27 +11,44 @@
 
 namespace ftn
 {
-template<class Scalar>
-class ArrayView: public ArrayNonConstBase<ArrayView<Scalar>, Scalar>
+// TODO: funktiot sub2ind, linearStride.
+template<class RefType, int nDims, class Scalar>
+class ArrayView: public ArrayNonConstBase<ArrayView<RefType, nDims, Scalar>, Scalar>
 {
 private:
-	std::vector<dim_type> beginIndices;
-
-	void indexOutOfBounds (dim_type index, int dimNumber) const;
-	void linearIndexOutOfBounds (dim_type index) const;
+	RefType& _arrayRef;
+	std::array<dim_type, nDims> _start;
+	std::array<dim_type, nDims> _stop;
+	std::array<dim_type, nDims> _stride;
+	std::array<dim_type, nDims> _dimLengths;
+	std::array<size_t, nDims> _cumDimLengths;
+	std::array<size_t, nDims> _linStrides;
+	size_t _numel;
+	size_t _firstInd;
+	int _dimCounter;
 
 public:
+	using ArrayNonConstBase<ArrayView<RefType, nDims, Scalar>, Scalar>::operator();
 
-	ArrayView (MDArrayView<Scalar>& arrayView);
+	template<class T1, class ... OtherTypes>
+	ArrayView (RefType& arrayRef, T1& m, OtherTypes&... otherInitVals);
 
 	template<class Derived, class Scalar2>
-	ArrayView<Scalar>& operator= (ArrayBase<Derived, Scalar2> const& array);
+	ArrayView<RefType, nDims, Scalar>& operator= (ArrayBase<Derived, Scalar2> const& array);
 
-	ArrayView<Scalar>& operator= (ArrayView<Scalar>& array);
+	ArrayView<RefType, nDims, Scalar>& operator= (ArrayView<RefType, nDims, Scalar>& array);
 
-	MDArrayView<Scalar> getMdArrayView() const;
+	ArrayView (ArrayView<RefType, nDims, Scalar>&& other);
 
-	ArrayView (ArrayView<Scalar>&& other);
+	Scalar zb(dim_type m) const;
+	Scalar zb(dim_type m, dim_type n) const;
+	Scalar zb(dim_type m, dim_type n, dim_type o) const;
+	Scalar zb(dim_type m, dim_type n, dim_type o, dim_type p) const;
+
+	Scalar& zb(dim_type m);
+	Scalar& zb(dim_type m, dim_type n);
+	Scalar& zb(dim_type m, dim_type n, dim_type o);
+	Scalar& zb(dim_type m, dim_type n, dim_type o, dim_type p);
 
 	Scalar operator() (dim_type m) const;
 	Scalar operator() (dim_type m, dim_type n) const;
@@ -43,20 +60,8 @@ public:
 	Scalar& operator() (dim_type m, dim_type n, dim_type o);
 	Scalar& operator() (dim_type m, dim_type n, dim_type o, dim_type p);
 
-	template<class T1, class... OtherTypes>
-	ArrayView<Scalar> operator() (T1 m, OtherTypes... otherSpans)
-	{
-		return ArrayNonConstBase<Array<Scalar>, Scalar>::operator()(m,otherSpans...);
-	}
-
-	template<class T1, class... OtherTypes>
-	ArrayView<Scalar> operator() (T1 m, OtherTypes... otherSpans) const
-	{
-		return ArrayNonConstBase<Array<Scalar>, Scalar>::operator()(m,otherSpans...);
-	}
-
-	Scalar linear (dim_type index) const;
-	Scalar& linear (dim_type index);
+	Scalar linear (size_t index) const;
+	Scalar& linear (size_t index);
 
 	int numDims () const;
 
@@ -70,6 +75,25 @@ public:
 
 	size_t size () const;
 	size_t size (size_t dimNumber) const;
+
+	inline dim_type findStart (dim_type& ind)
+	{
+		_dimCounter++;
+		return ind;
+	}
+	inline dim_type findStop (dim_type& ind)
+	{
+		_dimCounter++;
+		return ind;
+	}
+	inline dim_type findStride (dim_type& ind) const
+	{
+		return 1;
+	}
+
+	inline dim_type findStart (span& sp);
+	inline dim_type findStop (span& sp);
+	inline dim_type findStride (span& sp) const;
 
 	operator Scalar&();
 

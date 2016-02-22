@@ -16,15 +16,13 @@ namespace ftn
 template<class Scalar>
 class Array;
 
-template<class Scalar>
+template<class RefType, int nDims, class Scalar>
 class ArrayView;
 
 template<class Derived, class Scalar>
 class ArrayNonConstBase: public ArrayBase<ArrayNonConstBase<Derived, Scalar>, Scalar>
 {
 private:
-//	void sliceDomiView(MDArrayView<Scalar>& domiView, span& indexSpan, int dimNum) const;
-//	void sliceDomiView(MDArrayView<Scalar>& domiView, dim_type index, int dimNum) const;
 
 public:
 	size_t size () const
@@ -41,34 +39,63 @@ public:
 		return static_cast<Derived const&>(*this).lbound(dimNumber);
 	}
 
-//	MDArrayView<Scalar> getMdArrayView() const
-//	{
-//		return static_cast<Derived const&>(*this).getMdArrayView();
-//	}
-
 	template<class T1>
-	ArrayView<Scalar> operator() (T1 m);
+	ArrayView<ArrayNonConstBase<Derived, Scalar>, 1, Scalar> operator() (T1 m);
 
 	template<class T1, class T2>
-	ArrayView<Scalar> operator() (T1 m, T2 n);
+	ArrayView<ArrayNonConstBase<Derived, Scalar>, 2, Scalar> operator() (T1 m, T2 n);
 
 	template<class T1, class T2, class T3>
-	ArrayView<Scalar> operator() (T1 m, T2 n, T3 o);
+	ArrayView<ArrayNonConstBase<Derived, Scalar>, 3, Scalar> operator() (T1 m, T2 n, T3 o);
 
 	template<class T1, class T2, class T3, class T4>
-	ArrayView<Scalar> operator() (T1 m, T2 n, T3 o, T4 p);
+	ArrayView<ArrayNonConstBase<Derived, Scalar>, 4, Scalar> operator() (T1 m, T2 n, T3 o, T4 p);
 
 	template<class T1>
-	ArrayView<Scalar> operator() (T1 m) const;
+	ArrayView<ArrayNonConstBase<Derived, Scalar>, 1, Scalar> operator() (T1 m) const;
 
 	template<class T1, class T2>
-	ArrayView<Scalar> operator() (T1 m, T2 n) const;
+	ArrayView<ArrayNonConstBase<Derived, Scalar>, 2, Scalar> operator() (T1 m, T2 n) const;
 
 	template<class T1, class T2, class T3>
-	ArrayView<Scalar> operator() (T1 m, T2 n, T3 o) const;
+	ArrayView<ArrayNonConstBase<Derived, Scalar>, 3, Scalar> operator() (T1 m, T2 n, T3 o) const;
 
 	template<class T1, class T2, class T3, class T4>
-	ArrayView<Scalar> operator() (T1 m, T2 n, T3 o, T4 p) const;
+	ArrayView<ArrayNonConstBase<Derived, Scalar>, 4, Scalar> operator() (T1 m, T2 n, T3 o, T4 p) const;
+
+	Scalar zb(dim_type m) const
+	{
+		return static_cast<Derived const&>(*this).zb(m);
+	}
+	Scalar zb(dim_type m, dim_type n) const
+	{
+		return static_cast<Derived const&>(*this).zb(m, n);
+	}
+	Scalar zb(dim_type m, dim_type n, dim_type o) const
+	{
+		return static_cast<Derived const&>(*this).zb(m, n, o);
+	}
+	Scalar zb(dim_type m, dim_type n, dim_type o, dim_type p) const
+	{
+		return static_cast<Derived const&>(*this).zb(m, n, o, p);
+	}
+
+	Scalar& zb(dim_type m)
+	{
+		return static_cast<Derived const&>(*this).zb(m);
+	}
+	Scalar& zb(dim_type m, dim_type n)
+	{
+		return static_cast<Derived const&>(*this).zb(m, n);
+	}
+	Scalar& zb(dim_type m, dim_type n, dim_type o)
+	{
+		return static_cast<Derived const&>(*this).zb(m, n, o);
+	}
+	Scalar& zb(dim_type m, dim_type n, dim_type o, dim_type p)
+	{
+		return static_cast<Derived const&>(*this).zb(m, n, o, p);
+	}
 
 	Scalar operator() (dim_type m) const
 	{
@@ -104,12 +131,12 @@ public:
 		return static_cast<Derived&>(*this)(m,n,o,p);
 	}
 
-	Scalar linear (dim_type index) const
+	Scalar linear (size_t index) const
 	{
 		return static_cast<Derived const&>(*this).linear(index);
 	}
 
-	Scalar& linear (dim_type index)
+	Scalar& linear (size_t index)
 	{
 		return static_cast<Derived&>(*this).linear(index);
 	}
@@ -118,9 +145,20 @@ public:
 	Array<dim_type> lbound () const;
 	Array<dim_type> ubound () const;
 
+	template<class OtherDimType, long unsigned int T>
+	size_t sub2ind (std::array<OtherDimType, T>& ind)
+	{
+		return static_cast<Derived&>(*this).sub2ind(ind);
+	}
+
 	dim_type ubound (dim_type dimNumber) const
 	{
 		return static_cast<Derived const&>(*this).ubound(dimNumber);
+	}
+
+	size_t linearStride (dim_type dimNumber) const
+	{
+		return static_cast<Derived const&>(*this).linearStride(dimNumber);
 	}
 
 	int numDims () const

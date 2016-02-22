@@ -24,7 +24,7 @@ public:
 		return static_cast<Derived const&>(*this).lbound(dimNumber);
 	}
 
-	Scalar linear (dim_type index) const
+	Scalar linear (size_t index) const
 	{
 		return static_cast<Derived const&>(*this).linear(index);
 	}

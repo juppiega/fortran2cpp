@@ -1,66 +1,8 @@
-13:30:53 **** Incremental Build of configuration Debug for project ftn ****
+20:01:07 **** Incremental Build of configuration Debug for project ftn ****
 make all 
 Building file: ../main.cpp
 Invoking: GCC C++ Compiler
-g++ -std=c++0x -D__GXX_EXPERIMENTAL_CXX0X__ -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"main.d" -MT"main.o" -o "main.o" "../main.cpp"
-In file included from ../ftn.h:10:0,
-                 from ../main.cpp:3:
-../ftn_BinaryOperatorImplementations.h:17:27: warning: ‘linear’ function uses ‘auto’ type specifier without trailing return type [enabled by default]
-  auto linear (dim_type i) const
-                           ^
-../ftn_BinaryOperatorImplementations.h:38:27: warning: ‘linear’ function uses ‘auto’ type specifier without trailing return type [enabled by default]
-  auto linear (dim_type i) const
-                           ^
-../ftn_BinaryOperatorImplementations.h:55:27: warning: ‘linear’ function uses ‘auto’ type specifier without trailing return type [enabled by default]
-  auto linear (dim_type i) const
-                           ^
-../ftn_BinaryOperatorImplementations.h:76:27: warning: ‘linear’ function uses ‘auto’ type specifier without trailing return type [enabled by default]
-  auto linear (dim_type i) const
-                           ^
-../ftn_BinaryOperatorImplementations.h:97:27: warning: ‘linear’ function uses ‘auto’ type specifier without trailing return type [enabled by default]
-  auto linear (dim_type i) const
-                           ^
-../ftn_BinaryOperatorImplementations.h:114:27: warning: ‘linear’ function uses ‘auto’ type specifier without trailing return type [enabled by default]
-  auto linear (dim_type i) const
-                           ^
-../ftn_BinaryOperatorImplementations.h:134:27: warning: ‘linear’ function uses ‘auto’ type specifier without trailing return type [enabled by default]
-  auto linear (dim_type i) const
-                           ^
-../ftn_BinaryOperatorImplementations.h:154:27: warning: ‘linear’ function uses ‘auto’ type specifier without trailing return type [enabled by default]
-  auto linear (dim_type i) const
-                           ^
-../ftn_BinaryOperatorImplementations.h:171:27: warning: ‘linear’ function uses ‘auto’ type specifier without trailing return type [enabled by default]
-  auto linear (dim_type i) const
-                           ^
-../ftn_BinaryOperatorImplementations.h:191:27: warning: ‘linear’ function uses ‘auto’ type specifier without trailing return type [enabled by default]
-  auto linear (dim_type i) const
-                           ^
-../ftn_BinaryOperatorImplementations.h:211:27: warning: ‘linear’ function uses ‘auto’ type specifier without trailing return type [enabled by default]
-  auto linear (dim_type i) const
-                           ^
-../ftn_BinaryOperatorImplementations.h:228:27: warning: ‘linear’ function uses ‘auto’ type specifier without trailing return type [enabled by default]
-  auto linear (dim_type i) const
-                           ^
-../ftn_BinaryOperatorImplementations.h:248:27: warning: ‘linear’ function uses ‘auto’ type specifier without trailing return type [enabled by default]
-  auto linear (dim_type i) const
-                           ^
-../ftn_BinaryOperatorImplementations.h:269:22: warning: ‘atan’ function uses ‘auto’ type specifier without trailing return type [enabled by default]
- auto atan (T1 y, T2 x)
-                      ^
-../ftn_BinaryOperatorImplementations.h:287:27: warning: ‘bessel_jn’ function uses ‘auto’ type specifier without trailing return type [enabled by default]
- auto bessel_jn (T1 n, T2 x)
-                           ^
-../ftn_BinaryOperatorImplementations.h:296:27: warning: ‘linear’ function uses ‘auto’ type specifier without trailing return type [enabled by default]
-  auto linear (dim_type i) const
-                           ^
-In file included from ../ftn.h:12:0,
-                 from ../main.cpp:3:
-../ftn_UnaryOperatorImplementation.h:300:21: warning: ‘bessel_j0’ function uses ‘auto’ type specifier without trailing return type [enabled by default]
- auto bessel_j0 (T1 x)
-                     ^
-../ftn_UnaryOperatorImplementation.h:326:21: warning: ‘bessel_j1’ function uses ‘auto’ type specifier without trailing return type [enabled by default]
- auto bessel_j1 (T1 x)
-                     ^
+g++ -std=c++1y -D__GXX_EXPERIMENTAL_CXX0X__ -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"main.d" -MT"main.o" -o "main.o" "../main.cpp"
 Finished building: ../main.cpp
  
 Building target: ftn
@@ -69,5 +11,5 @@ g++  -o "ftn"  ./main.o
 Finished building target: ftn
  
 
-13:30:55 Build Finished (took 1s.960ms)
+20:01:09 Build Finished (took 1s.408ms)
 
