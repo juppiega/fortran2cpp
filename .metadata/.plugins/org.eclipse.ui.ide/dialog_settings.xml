@@ -4,16 +4,16 @@
 		<item value="/home/juho/programming/python/ftn" key="OUTSIDE_LOCATION"/>
 	</section>
 	<section name="org.eclipse.ui.dialogs.FilteredResourcesSelectionDialog">
-		<item value="false" key="FilterByLocation"/>
-		<item value="false" key="ShowDerived"/>
 		<item value="true" key="ShowStatusLine"/>
+		<item value="false" key="ShowDerived"/>
+		<item value="false" key="FilterByLocation"/>
 		<item value="&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;&#x0A;&lt;workingSet workingSetName=&quot;&quot;/&gt;" key="WorkingSet"/>
 		<item value="&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;&#x0A;&lt;History&gt;&#x0A;&lt;historyRootNode/&gt;&#x0A;&lt;/History&gt;" key="History"/>
 		<section name="DialogBoundsSettings">
 			<item value="600" key="DIALOG_WIDTH"/>
 			<item value="389" key="DIALOG_Y_ORIGIN"/>
-			<item value="983" key="DIALOG_X_ORIGIN"/>
 			<item value="500" key="DIALOG_HEIGHT"/>
+			<item value="983" key="DIALOG_X_ORIGIN"/>
 			<item value="1|Ubuntu|11.0|0|GTK|1|" key="DIALOG_FONT_NAME"/>
 		</section>
 	</section>
@@ -22,8 +22,8 @@
 		<item value="false" key="WizardProjectsImportPage.STORE_COPY_PROJECT_ID"/>
 		<item value="false" key="WizardProjectsImportPage.STORE_NESTED_PROJECTS"/>
 		<list key="WizardProjectsImportPage.STORE_DIRECTORIES">
-			<item value="/home/juho/programming/python/fortran2cpp/ftn"/>
 			<item value="/home/juho/programming/python/fortran2cpp"/>
+			<item value="/home/juho/programming/python/fortran2cpp/ftn"/>
 			<item value="/home/juho/Documents/ftn"/>
 			<item value="/home/juho/programming/python/ftn"/>
 		</list>

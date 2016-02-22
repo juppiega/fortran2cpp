@@ -20,48 +20,56 @@ template<class RefType, int nDims, class Scalar>
 class ArrayView;
 
 template<class Derived, class Scalar>
-class ArrayNonConstBase: public ArrayBase<ArrayNonConstBase<Derived, Scalar>, Scalar>
+class ArrayNonConstBase: public ArrayBase<ArrayNonConstBase<Derived, Scalar>,
+		Scalar>
 {
 private:
 
 public:
-	size_t size () const
+	size_t size() const
 	{
 		return static_cast<Derived const&>(*this).size();
 	}
-	size_t size (size_t dimNumber) const
+	size_t size(size_t dimNumber) const
 	{
 		return static_cast<Derived const&>(*this).size(dimNumber);
 	}
 
-	dim_type lbound (dim_type dimNumber) const
+	dim_type lbound(dim_type dimNumber) const
 	{
 		return static_cast<Derived const&>(*this).lbound(dimNumber);
 	}
 
 	template<class T1>
-	ArrayView<ArrayNonConstBase<Derived, Scalar>, 1, Scalar> operator() (T1 m);
+	ArrayView<ArrayNonConstBase<Derived, Scalar>, 1, Scalar> operator()(T1 m);
 
 	template<class T1, class T2>
-	ArrayView<ArrayNonConstBase<Derived, Scalar>, 2, Scalar> operator() (T1 m, T2 n);
+	ArrayView<ArrayNonConstBase<Derived, Scalar>, 2, Scalar> operator()(T1 m,
+			T2 n);
 
 	template<class T1, class T2, class T3>
-	ArrayView<ArrayNonConstBase<Derived, Scalar>, 3, Scalar> operator() (T1 m, T2 n, T3 o);
+	ArrayView<ArrayNonConstBase<Derived, Scalar>, 3, Scalar> operator()(T1 m,
+			T2 n, T3 o);
 
 	template<class T1, class T2, class T3, class T4>
-	ArrayView<ArrayNonConstBase<Derived, Scalar>, 4, Scalar> operator() (T1 m, T2 n, T3 o, T4 p);
+	ArrayView<ArrayNonConstBase<Derived, Scalar>, 4, Scalar> operator()(T1 m,
+			T2 n, T3 o, T4 p);
 
 	template<class T1>
-	ArrayView<ArrayNonConstBase<Derived, Scalar>, 1, Scalar> operator() (T1 m) const;
+	ArrayView<ArrayNonConstBase<Derived, Scalar>, 1, Scalar> operator()(
+			T1 m) const;
 
 	template<class T1, class T2>
-	ArrayView<ArrayNonConstBase<Derived, Scalar>, 2, Scalar> operator() (T1 m, T2 n) const;
+	ArrayView<ArrayNonConstBase<Derived, Scalar>, 2, Scalar> operator()(T1 m,
+			T2 n) const;
 
 	template<class T1, class T2, class T3>
-	ArrayView<ArrayNonConstBase<Derived, Scalar>, 3, Scalar> operator() (T1 m, T2 n, T3 o) const;
+	ArrayView<ArrayNonConstBase<Derived, Scalar>, 3, Scalar> operator()(T1 m,
+			T2 n, T3 o) const;
 
 	template<class T1, class T2, class T3, class T4>
-	ArrayView<ArrayNonConstBase<Derived, Scalar>, 4, Scalar> operator() (T1 m, T2 n, T3 o, T4 p) const;
+	ArrayView<ArrayNonConstBase<Derived, Scalar>, 4, Scalar> operator()(T1 m,
+			T2 n, T3 o, T4 p) const;
 
 	Scalar zb(dim_type m) const
 	{
@@ -82,105 +90,105 @@ public:
 
 	Scalar& zb(dim_type m)
 	{
-		return static_cast<Derived const&>(*this).zb(m);
+		return static_cast<Derived&>(*this).zb(m);
 	}
 	Scalar& zb(dim_type m, dim_type n)
 	{
-		return static_cast<Derived const&>(*this).zb(m, n);
+		return static_cast<Derived&>(*this).zb(m, n);
 	}
 	Scalar& zb(dim_type m, dim_type n, dim_type o)
 	{
-		return static_cast<Derived const&>(*this).zb(m, n, o);
+		return static_cast<Derived&>(*this).zb(m, n, o);
 	}
 	Scalar& zb(dim_type m, dim_type n, dim_type o, dim_type p)
 	{
-		return static_cast<Derived const&>(*this).zb(m, n, o, p);
+		return static_cast<Derived&>(*this).zb(m, n, o, p);
 	}
 
-	Scalar operator() (dim_type m) const
+	Scalar operator()(dim_type m) const
 	{
 		return static_cast<Derived const&>(*this)(m);
 	}
-	Scalar operator() (dim_type m, dim_type n) const
+	Scalar operator()(dim_type m, dim_type n) const
 	{
-		return static_cast<Derived const&>(*this)(m,n);
+		return static_cast<Derived const&>(*this)(m, n);
 	}
-	Scalar operator() (dim_type m, dim_type n, dim_type o) const
+	Scalar operator()(dim_type m, dim_type n, dim_type o) const
 	{
-		return static_cast<Derived const&>(*this)(m,n,o);
+		return static_cast<Derived const&>(*this)(m, n, o);
 	}
-	Scalar operator() (dim_type m, dim_type n, dim_type o, dim_type p) const
+	Scalar operator()(dim_type m, dim_type n, dim_type o, dim_type p) const
 	{
-		return static_cast<Derived const&>(*this)(m,n,o,p);
+		return static_cast<Derived const&>(*this)(m, n, o, p);
 	}
 
-	Scalar& operator() (dim_type m)
+	Scalar& operator()(dim_type m)
 	{
 		return static_cast<Derived&>(*this)(m);
 	}
-	Scalar& operator() (dim_type m, dim_type n)
+	Scalar& operator()(dim_type m, dim_type n)
 	{
-		return static_cast<Derived&>(*this)(m,n);
+		return static_cast<Derived&>(*this)(m, n);
 	}
 	Scalar& operator()(dim_type m, dim_type n, dim_type o)
 	{
-		return static_cast<Derived&>(*this)(m,n,o);
+		return static_cast<Derived&>(*this)(m, n, o);
 	}
-	Scalar& operator() (dim_type m, dim_type n, dim_type o, dim_type p)
+	Scalar& operator()(dim_type m, dim_type n, dim_type o, dim_type p)
 	{
-		return static_cast<Derived&>(*this)(m,n,o,p);
+		return static_cast<Derived&>(*this)(m, n, o, p);
 	}
 
-	Scalar linear (size_t index) const
+	Scalar linear(size_t index) const
 	{
 		return static_cast<Derived const&>(*this).linear(index);
 	}
 
-	Scalar& linear (size_t index)
+	Scalar& linear(size_t index)
 	{
 		return static_cast<Derived&>(*this).linear(index);
 	}
 
-	Array<dim_type> shape () const;
-	Array<dim_type> lbound () const;
-	Array<dim_type> ubound () const;
+	Array<dim_type> shape() const;
+	Array<dim_type> lbound() const;
+	Array<dim_type> ubound() const;
 
 	template<class OtherDimType, long unsigned int T>
-	size_t sub2ind (std::array<OtherDimType, T>& ind)
+	size_t sub2ind(std::array<OtherDimType, T>& ind)
 	{
 		return static_cast<Derived&>(*this).sub2ind(ind);
 	}
 
-	dim_type ubound (dim_type dimNumber) const
+	dim_type ubound(dim_type dimNumber) const
 	{
 		return static_cast<Derived const&>(*this).ubound(dimNumber);
 	}
 
-	size_t linearStride (dim_type dimNumber) const
+	size_t linearStride(dim_type dimNumber) const
 	{
 		return static_cast<Derived const&>(*this).linearStride(dimNumber);
 	}
 
-	int numDims () const
+	int numDims() const
 	{
 		return static_cast<Derived const&>(*this).numDims();
 	}
-	std::string toString () const
+	std::string toString() const
 	{
 		return static_cast<Derived const&>(*this).toString();
 	}
 
-	operator Derived& ()
+	operator Derived&()
 	{
 		return static_cast<Derived&>(*this);
 	}
-	operator Derived const& () const
+	operator Derived const&() const
 	{
 		return static_cast<const Derived&>(*this);
 	}
 
-	void indexOutOfBounds (dim_type index, int dimNumber) const;
-	void linearIndexOutOfBounds (dim_type index) const;
+	void indexOutOfBounds(dim_type index, int dimNumber) const;
+	void linearIndexOutOfBounds(dim_type index) const;
 
 	void wrongDimension(int dimNum) const;
 };

@@ -4,21 +4,29 @@
 
 using namespace ftn;
 
+template<class T>
+struct isFtnType
+{
+	static constexpr bool value = std::is_base_of<typename T::PossibleParent, T>::value;
+};
+
 int main()
 {
-	double t1 = cpu_time();
-	Array<double> a(50000, 5000);
-	double t2 = cpu_time();
-	std::cout << "Alloc Time (ms): " << (double)(t2-t1)*1000 << std::endl;
-
-	a = 0.001;
-
-	double sum = 0.0;
-	t1 = cpu_time();
-	a(span(1,Dynamic,2), span(1,Dynamic,2)) =  sin(a(span(1,Dynamic,2), span(1,Dynamic,2))) + 4.0;
-	t2 = cpu_time();
-	std::cout << "Traverse Time (ms): " << (double)(t2-t1)*1000 << std::endl;
-	std::cout << a(1,1) << std::endl;
+	constexpr bool b = isFtnType<int >::value;
+	std::cout << b << std::endl;
+//	double t1 = cpu_time();
+//	Array<double> a(50000, 5000);
+//	double t2 = cpu_time();
+//	std::cout << "Alloc Time (ms): " << (double)(t2-t1)*1000 << std::endl;
+//
+//	a = 0.001;
+//
+//	double sum = 0.0;
+//	t1 = cpu_time();
+//	a(span(1,Dynamic,2), span(1,Dynamic,2)) =  sin(a(span(1,Dynamic,2), span(1,Dynamic,2))) + 4.0;
+//	t2 = cpu_time();
+//	std::cout << "Traverse Time (ms): " << (double)(t2-t1)*1000 << std::endl;
+//	std::cout << a(1,1) << std::endl;
 
 	return 0;
 }

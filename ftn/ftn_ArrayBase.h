@@ -12,6 +12,8 @@ template<class Derived, class Scalar>
 class ArrayBase
 {
 public:
+	typedef Derived PossibleParent;
+
 	size_t size() const
 	{
 		return static_cast<Derived const&>(*this).size();
