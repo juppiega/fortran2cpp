@@ -1,11 +1,12 @@
-14:04:09 **** Incremental Build of configuration Debug for project ftn ****
+09:32:10 **** Incremental Build of configuration Debug for project ftn ****
 make all 
 Building file: ../main.cpp
 Invoking: GCC C++ Compiler
 g++ -std=c++1y -D__GXX_EXPERIMENTAL_CXX0X__ -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"main.d" -MT"main.o" -o "main.o" "../main.cpp"
-../main.cpp: In instantiation of ‘constexpr const bool isFtnType<int>::value’:
-../main.cpp:15:38:   required from here
-../main.cpp:10:24: error: ‘int’ is not a class, struct, or union type
-  static constexpr bool value = std::is_base_of<typename T::PossibleParent, T>::value;
-                        ^
-make: *** [main.o] Error 1
+Finished building: ../main.cpp
+ 
+Building target: ftn
+Invoking: GCC C++ Linker
+g++  -o "ftn"  ./main.o   
+Finished building target: ftn
+ 

@@ -4,15 +4,10 @@
 
 using namespace ftn;
 
-template<class T>
-struct isFtnType
-{
-	static constexpr bool value = std::is_base_of<typename T::PossibleParent, T>::value;
-};
 
 int main()
 {
-	constexpr bool b = isFtnType<int >::value;
+	constexpr bool b = isFtnType<Array<double> >::value;
 	std::cout << b << std::endl;
 //	double t1 = cpu_time();
 //	Array<double> a(50000, 5000);

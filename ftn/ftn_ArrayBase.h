@@ -12,7 +12,9 @@ template<class Derived, class Scalar>
 class ArrayBase
 {
 public:
-	typedef Derived PossibleParent;
+	// Recognition of weather the type is member of the FTN library is based on containing this rather random typedef.
+	// It's virtually impossible that a user-defined class would contain such a type.
+	typedef ArrayBase<Derived, Scalar> PossibleBaseInFtn_WithRandomSequence_5CqH36Rz9c9ELo79Mi257usV;
 
 	size_t size() const
 	{

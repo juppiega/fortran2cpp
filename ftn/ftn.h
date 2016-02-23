@@ -21,4 +21,6 @@
 
 #include "ftn_nonMemberFunctions.h"
 
+#include "ftn_traits.h"
+
 #endif /* FTN_H_ */
