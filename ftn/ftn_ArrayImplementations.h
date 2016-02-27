@@ -3,7 +3,6 @@
 #include "ftn_Array.h"
 #include "ftn_nonMemberFunctions.h"
 
-
 namespace ftn
 {
 
@@ -26,7 +25,8 @@ Array<Scalar, nDims>::Array(T1 m, OtherTypes ... otherInitVals)
 
 	_strides = computeArrayStrides(_dimLengths);
 
-	_mdArray = std::move(std::vector<Scalar>(numel));
+	_mdArray = new Scalar[numel];
+	_numel = numel;
 }
 
 template<class Scalar, int nDims>
@@ -44,7 +44,10 @@ Array<Scalar, nDims>::Array(ArrayBase<Derived, Scalar2> const& array) :
 
 	_strides = computeArrayStrides(_dimLengths);
 
-	_mdArray.resize(array.size());
+	_numel = array.size();
+	Scalar* newArray = new Scalar[_numel];
+	delete[] _mdArray;
+	_mdArray = newArray;
 
 	if (!array.isArrayView())
 	{
@@ -110,7 +113,10 @@ Array<Scalar, nDims>::Array(Array<Scalar, nDims>& array) :
 
 	_strides = computeArrayStrides(_dimLengths);
 
-	_mdArray.resize(array.size());
+	_numel = array.size();
+	Scalar* newArray = new Scalar[_numel];
+	delete[] _mdArray;
+	_mdArray = newArray;
 
 	size_t length = array.size();
 	for (size_t i = 0; i < length; i++)
@@ -127,7 +133,9 @@ Array<Scalar, nDims>::Array(Array<Scalar, nDims> && other) noexcept : _dimCounte
 	_dimLengths = std::move(other._dimLengths);
 	_strides = std::move(other._strides);
 	_beginIndices.fill(1);
-	_mdArray = std::move(other._mdArray);
+	_numel = other._numel;
+	_mdArray = other._mdArray;
+	other._mdArray = nullptr;
 }
 
 template<class Scalar, int nDims>
@@ -149,9 +157,11 @@ Array<Scalar, nDims>& Array<Scalar, nDims>::operator=(
 		_strides = std::move(other._strides);
 
 		_isAllocated = true;
+		_numel = other._numel;
 	}
 
-	_mdArray = std::move(other._mdArray);
+	_mdArray = other._mdArray;
+	other._mdArray = nullptr;
 
 	return *this;
 }
@@ -179,7 +189,10 @@ Array<Scalar, nDims>& Array<Scalar, nDims>::operator=(
 			_dimLengths[i - 1] = array.size(i);
 		}
 
-		_mdArray.resize(array.size());
+		_numel = array.size();
+		Scalar* newArray = new Scalar[_numel];
+		delete[] _mdArray;
+		_mdArray = newArray;
 
 		_strides = computeArrayStrides(_dimLengths);
 
@@ -269,8 +282,8 @@ template<class Scalar, int nDims>
 std::string Array<Scalar, nDims>::toString() const
 {
 	std::ostringstream oss;
-	if (!_mdArray.empty())
-		std::copy(_mdArray.begin(), _mdArray.end(),
+	if (_numel > 0)
+		std::copy(_mdArray, _mdArray + _numel,
 				std::ostream_iterator<Scalar>(oss, "    "));
 	return oss.str();
 }
@@ -386,11 +399,11 @@ template<class Derived, class Scalar>
 void ArrayNonConstBase<Derived, Scalar>::linearIndexOutOfBounds(
 		size_t index) const
 {
-	if (index < (size_t) 0 || index > size()-1)
+	if (index < (size_t) 0 || index > size() - 1)
 	{
 		std::ostringstream strStream;
 		strStream << "Index " << index << " out of range [" << 0 << ", "
-				<< size()-1 << "]!";
+				<< size() - 1 << "]!";
 		throw std::out_of_range(strStream.str());
 	}
 }
@@ -602,7 +615,7 @@ Scalar& Array<Scalar, nDims>::linear(size_t index)
 template<class Scalar, int nDims>
 size_t Array<Scalar, nDims>::size() const
 {
-	return _mdArray.size();
+	return _numel;
 }
 
 template<class Scalar, int nDims>
@@ -674,8 +687,15 @@ Array<dim_type, 1> Array<Scalar, nDims>::ubound() const
 }
 
 template<class Scalar, int nDims>
+Array<Scalar, nDims>::~Array()
+{
+	delete[] _mdArray;
+}
+
+template<class Scalar, int nDims>
 template<class Scalar2>
-typename std::enable_if<!isFtnType<Scalar2>::value, Array<Scalar, nDims> >::type& Array<Scalar, nDims>::operator=(const Scalar2& x)
+typename std::enable_if<!isFtnType<Scalar2>::value, Array<Scalar, nDims> >::type& Array<
+		Scalar, nDims>::operator=(const Scalar2& x)
 {
 #ifdef FTN_DEBUG
 	if (!_isAllocated)
@@ -685,7 +705,8 @@ typename std::enable_if<!isFtnType<Scalar2>::value, Array<Scalar, nDims> >::type
 		throw std::logic_error(strStream.str());
 	}
 #endif
-	_mdArray.assign(size(), x);
+	for (size_t i = 0; i < _numel; i++)
+		_mdArray[i] = x;
 	return *this;
 }
 

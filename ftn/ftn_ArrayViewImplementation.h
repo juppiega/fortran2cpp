@@ -102,7 +102,7 @@ size_t ArrayView<RefType, nDims, Scalar>::size(int dimNumber) const
 	}
 #endif
 	int i = dimNumber - 1;
-	return std::max(0, (_stop[i] - _start[i] + _stride[i]) / _stride[i]);
+	return std::max((dim_type)0, (_stop[i] - _start[i] + _stride[i]) / _stride[i]);
 }
 
 template<class RefType, int nDims, class Scalar>

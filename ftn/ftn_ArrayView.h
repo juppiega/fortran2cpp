@@ -71,17 +71,17 @@ public:
 	size_t size () const;
 	size_t size (int dimNumber) const;
 
-	inline dim_type findStart (dim_type& ind)
+	inline dim_type findStart (dim_type ind)
 	{
 		_dimCounter++;
 		return ind;
 	}
-	inline dim_type findStop (dim_type& ind)
+	inline dim_type findStop (dim_type ind)
 	{
 		_dimCounter++;
 		return ind;
 	}
-	inline dim_type findStride (dim_type& ind) const
+	inline dim_type findStride (dim_type ind) const
 	{
 		return 1;
 	}

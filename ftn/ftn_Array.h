@@ -23,7 +23,8 @@ private:
 	std::array<dim_type, nDims> _beginIndices;
 	std::array<size_t, nDims> _strides;
 	std::array<dim_type, nDims> _dimLengths;
-	std::vector<Scalar> _mdArray;
+	Scalar* _mdArray;
+	size_t _numel;
 
 	dim_type findInitializationValues(dim_type initVal);
 	dim_type findInitializationValues(span initVal);
@@ -99,6 +100,8 @@ public:
 	{
 		return false;
 	}
+
+	~Array();
 
 	std::string toString() const;
 };
