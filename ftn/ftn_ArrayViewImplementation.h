@@ -1,4 +1,3 @@
-
 #ifndef FTN_ARRAYVIEWIMPLEMENTATION_H_
 #define FTN_ARRAYVIEWIMPLEMENTATION_H_
 #include "ftn_nonMemberFunctions.h"
@@ -22,40 +21,18 @@ ArrayView<RefType, nDims, Scalar>::ArrayView(RefType& arrayRef, T1& m,
 	_stride =
 	{	findStride(m), (findStride(otherInitVals))...};
 
-	for (int i = 0; i < nDims; i++)
-	{
-		_dimLengths[i] = std::max(0, (_stop[i] - _start[i] + _stride[i]) / _stride[i]);
-	}
-
-	size_t cumulativeLength = 1;
-	for (int i = 0; i < nDims; i++)
-	{
-		cumulativeLength *= _dimLengths[i];
-		_cumDimLengths[i] = cumulativeLength;
-	}
-
-	_numel = _cumDimLengths[nDims-1];
-
-	_firstInd = _arrayRef.sub2ind(_start);
-
-	for (int i = 0; i < nDims; i++)
-	{
-		_linStrides[i] = _stride[i] * _arrayRef.linearStride(i+1);
-	}
 	// TODO: LISAA DEBUGGAUS-KOODIA!!!
 }
 
 template<class RefType, int nDims, class Scalar>
 ArrayView<RefType, nDims, Scalar>::ArrayView(
 		ArrayView<RefType, nDims, Scalar> && other) :
-		_arrayRef(other._arrayRef), _numel(other._numel), _firstInd(other._firstInd), _dimCounter(other._dimCounter)
+		_arrayRef(other._arrayRef), _dimCounter(
+				other._dimCounter)
 {
 	_start = std::move(other._start);
 	_stop = std::move(other._stop);
 	_stride = std::move(other._stride);
-	_dimLengths = std::move(other._dimLengths);
-	_cumDimLengths = std::move(other._cumDimLengths);
-	_linStrides = std::move(other._linStrides);
 }
 
 template<class RefType, int nDims, class Scalar>
@@ -79,7 +56,7 @@ ArrayView<RefType, nDims, Scalar>& ArrayView<RefType, nDims, Scalar>::operator=(
 #endif
 
 	size_t length = array.size();
-	for (size_t i = 1; i < length; i++)
+	for (size_t i = 0; i < length; i++)
 	{
 		linear(i) = array.linear(i);
 	}
@@ -105,11 +82,16 @@ int ArrayView<RefType, nDims, Scalar>::numDims() const
 template<class RefType, int nDims, class Scalar>
 size_t ArrayView<RefType, nDims, Scalar>::size() const
 {
-	return _numel;
+	size_t numel = 1;
+	for (int i = 1; i <= nDims; i++)
+	{
+		numel *= size(i);
+	}
+	return numel;
 }
 
 template<class RefType, int nDims, class Scalar>
-size_t ArrayView<RefType, nDims, Scalar>::size(size_t dimNumber) const
+size_t ArrayView<RefType, nDims, Scalar>::size(int dimNumber) const
 {
 #ifdef FTN_DEBUG
 	if (dimNumber < 1 || dimNumber > numDims())
@@ -119,37 +101,22 @@ size_t ArrayView<RefType, nDims, Scalar>::size(size_t dimNumber) const
 		throw std::invalid_argument(strStream.str());
 	}
 #endif
-	return _dimLengths[dimNumber - 1];
+	int i = dimNumber - 1;
+	return std::max(0, (_stop[i] - _start[i] + _stride[i]) / _stride[i]);
 }
 
 template<class RefType, int nDims, class Scalar>
 Scalar ArrayView<RefType, nDims, Scalar>::linear(size_t ind) const
 {
-#ifdef FTN_DEBUG
-	ArrayNonConstBase<ArrayView<RefType, nDims, Scalar>, Scalar>::linearIndexOutOfBounds(ind);
-#endif
-	size_t zb = ind - 1;
-	size_t linInd = _firstInd + (zb % _dimLengths[0]) * _linStrides[0];
-	for (int i = 1; i < nDims; i++)
-	{
-		linInd += ((zb / _cumDimLengths[i-1]) % _dimLengths[i]) * _linStrides[i];
-	}
-	return _arrayRef.linear(linInd);
+	throw std::logic_error(
+			"Attempting to access linear operator of an ArrayView!");
 }
 
 template<class RefType, int nDims, class Scalar>
 Scalar& ArrayView<RefType, nDims, Scalar>::linear(size_t ind)
 {
-#ifdef FTN_DEBUG
-	ArrayNonConstBase<ArrayView<RefType, nDims, Scalar>, Scalar>::linearIndexOutOfBounds(ind);
-#endif
-	size_t zb = ind - 1;
-	size_t linInd = _firstInd + (zb % _dimLengths[0]) * _linStrides[0];
-	for (int i = 1; i < nDims; i++)
-	{
-		linInd += ((zb / _cumDimLengths[i-1]) % _dimLengths[i]) * _linStrides[i];
-	}
-	return _arrayRef.linear(linInd);
+	throw std::logic_error(
+			"Attempting to access linear operator of an ArrayView!");
 }
 
 template<class RefType, int nDims, class Scalar>
@@ -167,10 +134,10 @@ dim_type ArrayView<RefType, nDims, Scalar>::lbound(dim_type dimNumber) const
 }
 
 template<class RefType, int nDims, class Scalar>
-Array<dim_type> ArrayView<RefType, nDims, Scalar>::shape() const
+Array<dim_type, 1> ArrayView<RefType, nDims, Scalar>::shape() const
 {
 	int n = numDims();
-	Array<dim_type> shape(n);
+	Array<dim_type, 1> shape(n);
 
 	for (int i = 1; i <= n; i++)
 	{
@@ -181,22 +148,55 @@ Array<dim_type> ArrayView<RefType, nDims, Scalar>::shape() const
 }
 
 template<class RefType, int nDims, class Scalar>
-Array<dim_type> ArrayView<RefType, nDims, Scalar>::lbound() const
+Array<dim_type, 1> ArrayView<RefType, nDims, Scalar>::lbound() const
 {
 	int n = numDims();
-	Array<dim_type> lbounds(n);
+	Array<dim_type, 1> lbounds(n);
 	lbounds = 1;
 	return lbounds;
 }
 
-// TODO: Scalarit eivat valttamatta samat!
 template<class RefType, int nDims, class Scalar>
-ArrayView<RefType, nDims, Scalar>& ArrayView<RefType, nDims, Scalar>::operator=(
-		const Scalar& x)
+template<class Scalar2>
+typename std::enable_if<!isFtnType<Scalar2>::value, ArrayView<RefType, nDims, Scalar> >::type& ArrayView<RefType, nDims, Scalar>::operator=(
+		const Scalar2& x)
 {
-	for (size_t i = 1; i <= _numel; i++)
+	// These if-clauses will be optimized away at compile time.
+	if (nDims == 1)
 	{
-		linear(i) = x;
+		dim_type len1 = size(1);
+		for (dim_type m = 0; m < len1; m++)
+			zb(m) = x;
+	}
+	else if (nDims == 2)
+	{
+		dim_type len1 = size(1);
+		dim_type len2 = size(2);
+		for (dim_type n = 0; n < len2; n++)
+			for (dim_type m = 0; m < len1; m++)
+				zb(m, n) = x;
+	}
+	else if (nDims == 3)
+	{
+		dim_type len1 = size(1);
+		dim_type len2 = size(2);
+		dim_type len3 = size(3);
+		for (dim_type o = 0; 0 < len3; o++)
+			for (dim_type n = 0; n < len2; n++)
+				for (dim_type m = 0; m < len1; m++)
+					zb(m, n, o) = x;
+	}
+	else if (nDims == 4)
+	{
+		dim_type len1 = size(1);
+		dim_type len2 = size(2);
+		dim_type len3 = size(3);
+		dim_type len4 = size(4);
+		for (dim_type p = 0; p < len4; p++)
+			for (dim_type o = 0; o < len3; o++)
+				for (dim_type n = 0; n < len2; n++)
+					for (dim_type m = 0; m < len1; m++)
+						zb(m, n, o, p) = x;
 	}
 	return *this;
 }
@@ -204,7 +204,7 @@ ArrayView<RefType, nDims, Scalar>& ArrayView<RefType, nDims, Scalar>::operator=(
 template<class RefType, int nDims, class Scalar>
 std::string ArrayView<RefType, nDims, Scalar>::toString() const
 {
-	Array<Scalar> outp = *this;
+	Array<Scalar, nDims> outp = *this;
 	return outp.toString();
 }
 
@@ -223,10 +223,10 @@ dim_type ArrayView<RefType, nDims, Scalar>::ubound(dim_type dimNumber) const
 }
 
 template<class RefType, int nDims, class Scalar>
-Array<dim_type> ArrayView<RefType, nDims, Scalar>::ubound() const
+Array<dim_type, 1> ArrayView<RefType, nDims, Scalar>::ubound() const
 {
 	int n = numDims();
-	Array<dim_type> ubounds(n);
+	Array<dim_type, 1> ubounds(n);
 
 	for (int i = 1; i <= n; i++)
 	{
@@ -237,7 +237,7 @@ Array<dim_type> ArrayView<RefType, nDims, Scalar>::ubound() const
 }
 
 template<class RefType, int nDims, class Scalar>
-inline dim_type ArrayView<RefType, nDims, Scalar>::findStart (span& sp)
+inline dim_type ArrayView<RefType, nDims, Scalar>::findStart(span& sp)
 {
 	dim_type start;
 	if (sp.start() == Dynamic)
@@ -249,7 +249,7 @@ inline dim_type ArrayView<RefType, nDims, Scalar>::findStart (span& sp)
 }
 
 template<class RefType, int nDims, class Scalar>
-inline dim_type ArrayView<RefType, nDims, Scalar>::findStop (span& sp)
+inline dim_type ArrayView<RefType, nDims, Scalar>::findStop(span& sp)
 {
 	dim_type stop;
 	if (sp.stop() == Dynamic)
@@ -261,7 +261,7 @@ inline dim_type ArrayView<RefType, nDims, Scalar>::findStop (span& sp)
 }
 
 template<class RefType, int nDims, class Scalar>
-inline dim_type ArrayView<RefType, nDims, Scalar>::findStride (span& sp) const
+inline dim_type ArrayView<RefType, nDims, Scalar>::findStride(span& sp) const
 {
 	dim_type stride;
 	if (sp.stride() == Dynamic)
@@ -286,30 +286,25 @@ Scalar ArrayView<RefType, nDims, Scalar>::zb(dim_type m) const
 }
 
 template<class RefType, int nDims, class Scalar>
-Scalar ArrayView<RefType, nDims, Scalar>::zb(dim_type m,
-		dim_type n) const
+Scalar ArrayView<RefType, nDims, Scalar>::zb(dim_type m, dim_type n) const
 {
-	return _arrayRef(_start[0] + m * _stride[0],
-			  _start[1] + n * _stride[1]);
+	return _arrayRef(_start[0] + m * _stride[0], _start[1] + n * _stride[1]);
 }
 
 template<class RefType, int nDims, class Scalar>
 Scalar ArrayView<RefType, nDims, Scalar>::zb(dim_type m, dim_type n,
 		dim_type o) const
 {
-	return _arrayRef(_start[0] + m * _stride[0],
-			  _start[1] + n * _stride[1],
-			  _start[2] + o * _stride[2]);
+	return _arrayRef(_start[0] + m * _stride[0], _start[1] + n * _stride[1],
+			_start[2] + o * _stride[2]);
 }
 
 template<class RefType, int nDims, class Scalar>
-Scalar ArrayView<RefType, nDims, Scalar>::zb(dim_type m, dim_type n,
-		dim_type o, dim_type p) const
+Scalar ArrayView<RefType, nDims, Scalar>::zb(dim_type m, dim_type n, dim_type o,
+		dim_type p) const
 {
-	return _arrayRef(_start[0] + m * _stride[0],
-			  _start[1] + n * _stride[1],
-			  _start[2] + o * _stride[2],
-			  _start[3] + p * _stride[3]);
+	return _arrayRef(_start[0] + m * _stride[0], _start[1] + n * _stride[1],
+			_start[2] + o * _stride[2], _start[3] + p * _stride[3]);
 }
 
 template<class RefType, int nDims, class Scalar>
@@ -321,27 +316,23 @@ Scalar& ArrayView<RefType, nDims, Scalar>::zb(dim_type m)
 template<class RefType, int nDims, class Scalar>
 Scalar& ArrayView<RefType, nDims, Scalar>::zb(dim_type m, dim_type n)
 {
-	return _arrayRef(_start[0] + m * _stride[0],
-			  _start[1] + n * _stride[1]);
+	return _arrayRef(_start[0] + m * _stride[0], _start[1] + n * _stride[1]);
 }
 
 template<class RefType, int nDims, class Scalar>
 Scalar& ArrayView<RefType, nDims, Scalar>::zb(dim_type m, dim_type n,
 		dim_type o)
 {
-	return _arrayRef(_start[0] + m * _stride[0],
-			  _start[1] + n * _stride[1],
-			  _start[2] + o * _stride[2]);
+	return _arrayRef(_start[0] + m * _stride[0], _start[1] + n * _stride[1],
+			_start[2] + o * _stride[2]);
 }
 
 template<class RefType, int nDims, class Scalar>
 Scalar& ArrayView<RefType, nDims, Scalar>::zb(dim_type m, dim_type n,
 		dim_type o, dim_type p)
 {
-	return _arrayRef(_start[0] + m * _stride[0],
-			  _start[1] + n * _stride[1],
-			  _start[2] + o * _stride[2],
-			  _start[3] + p * _stride[3]);
+	return _arrayRef(_start[0] + m * _stride[0], _start[1] + n * _stride[1],
+			_start[2] + o * _stride[2], _start[3] + p * _stride[3]);
 }
 
 // @formatter:off
@@ -365,7 +356,7 @@ Scalar ArrayView<RefType, nDims, Scalar>::operator()(dim_type m,
 	ArrayNonConstBase<ArrayView<RefType, nDims, Scalar>, Scalar>::indexOutOfBounds(n, 2);
 #endif
 	return _arrayRef(_start[0] + (m - 1) * _stride[0],
-			  _start[1] + (n - 1) * _stride[1]);
+			_start[1] + (n - 1) * _stride[1]);
 }
 
 template<class RefType, int nDims, class Scalar>
@@ -379,8 +370,7 @@ Scalar ArrayView<RefType, nDims, Scalar>::operator()(dim_type m, dim_type n,
 	ArrayNonConstBase<ArrayView<RefType, nDims, Scalar>, Scalar>::indexOutOfBounds(o, 3);
 #endif
 	return _arrayRef(_start[0] + (m - 1) * _stride[0],
-			  _start[1] + (n - 1) * _stride[1],
-			  _start[2] + (o - 1) * _stride[2]);
+			_start[1] + (n - 1) * _stride[1], _start[2] + (o - 1) * _stride[2]);
 }
 
 template<class RefType, int nDims, class Scalar>
@@ -395,9 +385,8 @@ Scalar ArrayView<RefType, nDims, Scalar>::operator()(dim_type m, dim_type n,
 	ArrayNonConstBase<ArrayView<RefType, nDims, Scalar>, Scalar>::indexOutOfBounds(p, 4);
 #endif
 	return _arrayRef(_start[0] + (m - 1) * _stride[0],
-			  _start[1] + (n - 1) * _stride[1],
-			  _start[2] + (o - 1) * _stride[2],
-			  _start[3] + (p - 1) * _stride[3]);
+			_start[1] + (n - 1) * _stride[1], _start[2] + (o - 1) * _stride[2],
+			_start[3] + (p - 1) * _stride[3]);
 }
 
 template<class RefType, int nDims, class Scalar>
@@ -419,7 +408,7 @@ Scalar& ArrayView<RefType, nDims, Scalar>::operator()(dim_type m, dim_type n)
 	ArrayNonConstBase<ArrayView<RefType, nDims, Scalar>, Scalar>::indexOutOfBounds(n, 2);
 #endif
 	return _arrayRef(_start[0] + (m - 1) * _stride[0],
-			  _start[1] + (n - 1) * _stride[1]);
+			_start[1] + (n - 1) * _stride[1]);
 }
 
 template<class RefType, int nDims, class Scalar>
@@ -433,8 +422,7 @@ Scalar& ArrayView<RefType, nDims, Scalar>::operator()(dim_type m, dim_type n,
 	ArrayNonConstBase<ArrayView<RefType, nDims, Scalar>, Scalar>::indexOutOfBounds(o, 3);
 #endif
 	return _arrayRef(_start[0] + (m - 1) * _stride[0],
-			  _start[1] + (n - 1) * _stride[1],
-			  _start[2] + (o - 1) * _stride[2]);
+			_start[1] + (n - 1) * _stride[1], _start[2] + (o - 1) * _stride[2]);
 }
 
 template<class RefType, int nDims, class Scalar>
@@ -449,9 +437,8 @@ Scalar& ArrayView<RefType, nDims, Scalar>::operator()(dim_type m, dim_type n,
 	ArrayNonConstBase<ArrayView<RefType, nDims, Scalar>, Scalar>::indexOutOfBounds(p, 4);
 #endif
 	return _arrayRef(_start[0] + (m - 1) * _stride[0],
-			  _start[1] + (n - 1) * _stride[1],
-			  _start[2] + (o - 1) * _stride[2],
-			  _start[3] + (p - 1) * _stride[3]);
+			_start[1] + (n - 1) * _stride[1], _start[2] + (o - 1) * _stride[2],
+			_start[3] + (p - 1) * _stride[3]);
 }
 
 template<class RefType, int nDims, class Scalar>
@@ -465,7 +452,7 @@ ArrayView<RefType, nDims, Scalar>::operator Scalar&()
 		throw std::domain_error(strStream.str());
 	}
 #endif
-	return linear(1);
+	return linear(0);
 }
 // @formatter:on
 
@@ -475,8 +462,8 @@ ArrayView<RefType, nDims, Scalar>::operator Scalar&()
 
 template<class Derived, class Scalar>
 template<class T1>
-ArrayView<ArrayNonConstBase<Derived, Scalar>, 1, Scalar> ArrayNonConstBase<Derived, Scalar>::operator()(
-		T1 m)
+ArrayView<ArrayNonConstBase<Derived, Scalar>, 1, Scalar> ArrayNonConstBase<
+		Derived, Scalar>::operator()(T1 m)
 {
 	constexpr int thisDims = 1;
 #ifdef FTN_DEBUG
@@ -488,68 +475,71 @@ ArrayView<ArrayNonConstBase<Derived, Scalar>, 1, Scalar> ArrayNonConstBase<Deriv
 	}
 #endif
 
-	return ArrayView<ArrayNonConstBase<Derived, Scalar>, thisDims, Scalar> (*this, m);
+	return ArrayView<ArrayNonConstBase<Derived, Scalar>, thisDims, Scalar>(
+			*this, m);
 }
 
 template<class Derived, class Scalar>
 template<class T1, class T2>
-ArrayView<ArrayNonConstBase<Derived, Scalar>, 2, Scalar> ArrayNonConstBase<Derived, Scalar>::operator()(
-		T1 m, T2 n)
+ArrayView<ArrayNonConstBase<Derived, Scalar>, 2, Scalar> ArrayNonConstBase<
+		Derived, Scalar>::operator()(T1 m, T2 n)
 {
 	constexpr int thisDims = 2;
 #ifdef FTN_DEBUG
 	if (thisDims != numDims())
 	{
 		std::ostringstream strStream;
-		strStream << "Trying to reference an array of dimension: " << numDims() << " by providing " << 1 << " parameters to operator()!";
+		strStream << "Trying to reference an array of dimension: " << numDims() << " by providing " << 2 << " parameters to operator()!";
 		throw std::domain_error(strStream.str());
 	}
 #endif
 
-	return ArrayView<ArrayNonConstBase<Derived, Scalar>, thisDims, Scalar> (*this, m, n);
+	return ArrayView<ArrayNonConstBase<Derived, Scalar>, thisDims, Scalar>(
+			*this, m, n);
 }
 
 template<class Derived, class Scalar>
 template<class T1, class T2, class T3>
-ArrayView<ArrayNonConstBase<Derived, Scalar>, 3, Scalar> ArrayNonConstBase<Derived, Scalar>::operator()(
-		T1 m, T2 n, T3 o)
+ArrayView<ArrayNonConstBase<Derived, Scalar>, 3, Scalar> ArrayNonConstBase<
+		Derived, Scalar>::operator()(T1 m, T2 n, T3 o)
 {
 	constexpr int thisDims = 3;
 #ifdef FTN_DEBUG
 	if (thisDims != numDims())
 	{
 		std::ostringstream strStream;
-		strStream << "Trying to reference an array of dimension: " << numDims() << " by providing " << 1 << " parameters to operator()!";
+		strStream << "Trying to reference an array of dimension: " << numDims() << " by providing " << 3 << " parameters to operator()!";
 		throw std::domain_error(strStream.str());
 	}
 #endif
 
-	return ArrayView<ArrayNonConstBase<Derived, Scalar>, thisDims, Scalar> (*this, m, n, o);
+	return ArrayView<ArrayNonConstBase<Derived, Scalar>, thisDims, Scalar>(
+			*this, m, n, o);
 }
 
 template<class Derived, class Scalar>
 template<class T1, class T2, class T3, class T4>
-ArrayView<ArrayNonConstBase<Derived, Scalar>, 4, Scalar> ArrayNonConstBase<Derived, Scalar>::operator()(
-		T1 m, T2 n, T3 o, T4 p)
+ArrayView<ArrayNonConstBase<Derived, Scalar>, 4, Scalar> ArrayNonConstBase<
+		Derived, Scalar>::operator()(T1 m, T2 n, T3 o, T4 p)
 {
 	constexpr int thisDims = 4;
 #ifdef FTN_DEBUG
 	if (thisDims != numDims())
 	{
 		std::ostringstream strStream;
-		strStream << "Trying to reference an array of dimension: " << numDims() << " by providing " << 1 << " parameters to operator()!";
+		strStream << "Trying to reference an array of dimension: " << numDims() << " by providing " << 4 << " parameters to operator()!";
 		throw std::domain_error(strStream.str());
 	}
 #endif
 
-	return ArrayView<ArrayNonConstBase<Derived, Scalar>, thisDims, Scalar> (*this, m, n, o, p);
+	return ArrayView<ArrayNonConstBase<Derived, Scalar>, thisDims, Scalar>(
+			*this, m, n, o, p);
 }
-
 
 template<class Derived, class Scalar>
 template<class T1>
-ArrayView<ArrayNonConstBase<Derived, Scalar>, 1, Scalar> ArrayNonConstBase<Derived, Scalar>::operator()(
-		T1 m) const
+ArrayView<ArrayNonConstBase<Derived, Scalar>, 1, Scalar> ArrayNonConstBase<
+		Derived, Scalar>::operator()(T1 m) const
 {
 	constexpr int thisDims = 1;
 #ifdef FTN_DEBUG
@@ -561,61 +551,65 @@ ArrayView<ArrayNonConstBase<Derived, Scalar>, 1, Scalar> ArrayNonConstBase<Deriv
 	}
 #endif
 
-	return ArrayView<ArrayNonConstBase<Derived, Scalar>, thisDims, Scalar> (*this, m);
+	return ArrayView<ArrayNonConstBase<Derived, Scalar>, thisDims, Scalar>(
+			*this, m);
 }
 
 template<class Derived, class Scalar>
 template<class T1, class T2>
-ArrayView<ArrayNonConstBase<Derived, Scalar>, 2, Scalar> ArrayNonConstBase<Derived, Scalar>::operator()(
-		T1 m, T2 n) const
+ArrayView<ArrayNonConstBase<Derived, Scalar>, 2, Scalar> ArrayNonConstBase<
+		Derived, Scalar>::operator()(T1 m, T2 n) const
 {
 	constexpr int thisDims = 2;
 #ifdef FTN_DEBUG
 	if (thisDims != numDims())
 	{
 		std::ostringstream strStream;
-		strStream << "Trying to reference an array of dimension: " << numDims() << " by providing " << 1 << " parameters to operator()!";
+		strStream << "Trying to reference an array of dimension: " << numDims() << " by providing " << 2 << " parameters to operator()!";
 		throw std::domain_error(strStream.str());
 	}
 #endif
 
-	return ArrayView<ArrayNonConstBase<Derived, Scalar>, thisDims, Scalar> (*this, m, n);
+	return ArrayView<ArrayNonConstBase<Derived, Scalar>, thisDims, Scalar>(
+			*this, m, n);
 }
 
 template<class Derived, class Scalar>
 template<class T1, class T2, class T3>
-ArrayView<ArrayNonConstBase<Derived, Scalar>, 3, Scalar> ArrayNonConstBase<Derived, Scalar>::operator()(
-		T1 m, T2 n, T3 o) const
+ArrayView<ArrayNonConstBase<Derived, Scalar>, 3, Scalar> ArrayNonConstBase<
+		Derived, Scalar>::operator()(T1 m, T2 n, T3 o) const
 {
 	constexpr int thisDims = 3;
 #ifdef FTN_DEBUG
 	if (thisDims != numDims())
 	{
 		std::ostringstream strStream;
-		strStream << "Trying to reference an array of dimension: " << numDims() << " by providing " << 1 << " parameters to operator()!";
+		strStream << "Trying to reference an array of dimension: " << numDims() << " by providing " << 3 << " parameters to operator()!";
 		throw std::domain_error(strStream.str());
 	}
 #endif
 
-	return ArrayView<ArrayNonConstBase<Derived, Scalar>, thisDims, Scalar> (*this, m, n, o);
+	return ArrayView<ArrayNonConstBase<Derived, Scalar>, thisDims, Scalar>(
+			*this, m, n, o);
 }
 
 template<class Derived, class Scalar>
 template<class T1, class T2, class T3, class T4>
-ArrayView<ArrayNonConstBase<Derived, Scalar>, 4, Scalar> ArrayNonConstBase<Derived, Scalar>::operator()(
-		T1 m, T2 n, T3 o, T4 p) const
+ArrayView<ArrayNonConstBase<Derived, Scalar>, 4, Scalar> ArrayNonConstBase<
+		Derived, Scalar>::operator()(T1 m, T2 n, T3 o, T4 p) const
 {
 	constexpr int thisDims = 4;
 #ifdef FTN_DEBUG
 	if (thisDims != numDims())
 	{
 		std::ostringstream strStream;
-		strStream << "Trying to reference an array of dimension: " << numDims() << " by providing " << 1 << " parameters to operator()!";
+		strStream << "Trying to reference an array of dimension: " << numDims() << " by providing " << 4 << " parameters to operator()!";
 		throw std::domain_error(strStream.str());
 	}
 #endif
 
-	return ArrayView<ArrayNonConstBase<Derived, Scalar>, thisDims, Scalar> (*this, m, n, o, p);
+	return ArrayView<ArrayNonConstBase<Derived, Scalar>, thisDims, Scalar>(
+			*this, m, n, o, p);
 }
 
 } // namespace ftn

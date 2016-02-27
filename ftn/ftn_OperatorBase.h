@@ -2,6 +2,7 @@
 #define FTN_OPERATORBASE_H_
 #include "ftn_Array.h"
 #include "ftn_ArrayBase.h"
+#include "ftn_traits.h"
 
 namespace ftn
 {
@@ -14,7 +15,7 @@ public:
 	{
 		return static_cast<Derived const&>(*this).size();
 	}
-	size_t size (size_t dimNumber) const
+	size_t size (int dimNumber) const
 	{
 		return static_cast<Derived const&>(*this).size(dimNumber);
 	}
@@ -24,7 +25,24 @@ public:
 		return static_cast<Derived const&>(*this).lbound(dimNumber);
 	}
 
-	Scalar linear (size_t index) const
+	auto zb(dim_type m) const
+	{
+		return static_cast<Derived const&>(*this).zb(m);
+	}
+	auto zb(dim_type m, dim_type n) const
+	{
+		return static_cast<Derived const&>(*this).zb(m, n);
+	}
+	auto zb(dim_type m, dim_type n, dim_type o) const
+	{
+		return static_cast<Derived const&>(*this).zb(m, n, o);
+	}
+	auto zb(dim_type m, dim_type n, dim_type o, dim_type p) const
+	{
+		return static_cast<Derived const&>(*this).zb(m, n, o, p);
+	}
+
+	auto linear (size_t index) const
 	{
 		return static_cast<Derived const&>(*this).linear(index);
 	}
@@ -34,14 +52,19 @@ public:
 		return static_cast<Derived const&>(*this).numDims();
 	}
 
-	Array<dim_type> shape () const
+	Array<dim_type, 1> shape () const
 	{
 		return static_cast<Derived const&>(*this).shape();
 	}
 
-	Array<dim_type> lbound () const
+	Array<dim_type, 1> lbound () const
 	{
 		return static_cast<Derived const&>(*this).lbound();
+	}
+
+	constexpr bool isArrayView() const
+	{
+		return static_cast<Derived const&>(*this).isArrayView();
 	}
 
 	operator Derived& ()

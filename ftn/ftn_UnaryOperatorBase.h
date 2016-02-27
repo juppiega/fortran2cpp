@@ -43,9 +43,35 @@ public:
 		return 1;
 	}
 
-	Scalar linear (size_t index) const
+	template<class T1>
+	inline auto eval (T1 const& val) const
 	{
-		return static_cast<Derived const&>(*this).linear(index);
+		return static_cast<Derived const&>(*this).eval(val);
+	}
+
+	auto zb(dim_type m) const
+	{
+		return target(m);
+	}
+
+	auto zb(dim_type m, dim_type n) const
+	{
+		return target(m, n);
+	}
+
+	auto zb(dim_type m, dim_type n, dim_type o) const
+	{
+		return target(m, n, o);
+	}
+
+	auto zb(dim_type m, dim_type n, dim_type o, dim_type p) const
+	{
+		return target(m, n, o, p);
+	}
+
+	auto linear (size_t index) const
+	{
+		return eval(target.linear(index));
 	}
 
 	int numDims () const
@@ -53,14 +79,14 @@ public:
 		return target.numDims();
 	}
 
-	Array<dim_type> shape () const
+	Array<dim_type, 1> shape () const
 	{
 		return target.shape();
 	}
 
-	Array<dim_type> lbound () const
+	Array<dim_type, 1> lbound () const
 	{
-		Array<dim_type> lbounds(numDims());
+		Array<dim_type, 1> lbounds(numDims());
 		lbounds = 1;
 		return lbounds;
 	}
@@ -72,6 +98,11 @@ public:
 	operator Derived const& () const
 	{
 		return static_cast<const Derived&>(*this);
+	}
+
+	constexpr bool isArrayView() const
+	{
+		return target.isArrayView();
 	}
 };
 }

@@ -20,9 +20,10 @@ template<class Target, class Scalar>
 class UnaryMinus: public UnaryOperatorBase<UnaryMinus<Target, Scalar>, Target, Scalar>
 {
 public:
-	Scalar linear (dim_type i) const
+	template<class T1>
+	inline auto eval (T1 const& val) const
 	{
-		return -this->target.linear(i);
+		return -val;
 	}
 };
 
@@ -40,9 +41,10 @@ template<class Target, class Scalar>
 class Cosine: public UnaryOperatorBase<Cosine<Target, Scalar>, Target, Scalar>
 {
 public:
-	Scalar linear (dim_type i) const
+	template<class T1>
+	inline auto eval (T1 const& val) const
 	{
-		return std::cos(this->target.linear(i));
+		return std::cos(val);
 	}
 };
 
@@ -60,9 +62,10 @@ template<class Target, class Scalar>
 class Sine: public UnaryOperatorBase<Sine<Target, Scalar>, Target, Scalar>
 {
 public:
-	Scalar linear (dim_type i) const
+	template<class T1>
+	inline auto eval (T1 const& val) const
 	{
-		return std::sin(this->target.linear(i));
+		return std::sin(val);
 	}
 };
 
@@ -80,9 +83,10 @@ template<class Target, class Scalar>
 class Tan: public UnaryOperatorBase<Tan<Target, Scalar>, Target, Scalar>
 {
 public:
-	Scalar linear (dim_type i) const
+	template<class T1>
+	inline auto eval (T1 const& val) const
 	{
-		return std::tan(this->target.linear(i));
+		return std::tan(val);
 	}
 };
 
@@ -100,9 +104,10 @@ template<class Target, class Scalar>
 class Abs: public UnaryOperatorBase<Abs<Target, Scalar>, Target, Scalar>
 {
 public:
-	Scalar linear (dim_type i) const
+	template<class T1>
+	inline auto eval (T1 const& val) const
 	{
-		return std::abs(this->target.linear(i));
+		return std::abs(val);
 	}
 };
 
@@ -120,9 +125,10 @@ template<class Target, class Scalar>
 class ArcSine: public UnaryOperatorBase<ArcSine<Target, Scalar>, Target, Scalar>
 {
 public:
-	Scalar linear (dim_type i) const
+	template<class T1>
+	inline auto eval (T1 const& val) const
 	{
-		return std::asin(this->target.linear(i));
+		return std::asin(val);
 	}
 };
 
@@ -140,9 +146,10 @@ template<class Target, class Scalar>
 class ArcCosine: public UnaryOperatorBase<ArcCosine<Target, Scalar>, Target, Scalar>
 {
 public:
-	Scalar linear (dim_type i) const
+	template<class T1>
+	inline auto eval (T1 const& val) const
 	{
-		return std::acos(this->target.linear(i));
+		return std::acos(val);
 	}
 };
 
@@ -160,9 +167,10 @@ template<class Target, class Scalar>
 class ArcTan: public UnaryOperatorBase<ArcTan<Target, Scalar>, Target, Scalar>
 {
 public:
-	Scalar linear (dim_type i) const
+	template<class T1>
+	inline auto eval (T1 const& val) const
 	{
-		return std::atan(this->target.linear(i));
+		return std::atan(val);
 	}
 };
 
@@ -180,9 +188,10 @@ template<class Target, class Scalar>
 class SinH: public UnaryOperatorBase<SinH<Target, Scalar>, Target, Scalar>
 {
 public:
-	Scalar linear (dim_type i) const
+	template<class T1>
+	inline auto eval (T1 const& val) const
 	{
-		return std::sinh(this->target.linear(i));
+		return std::sinh(val);
 	}
 };
 
@@ -200,9 +209,10 @@ template<class Target, class Scalar>
 class CosH: public UnaryOperatorBase<CosH<Target, Scalar>, Target, Scalar>
 {
 public:
-	Scalar linear (dim_type i) const
+	template<class T1>
+	inline auto eval (T1 const& val) const
 	{
-		return std::cosh(this->target.linear(i));
+		return std::cosh(val);
 	}
 };
 
@@ -220,9 +230,10 @@ template<class Target, class Scalar>
 class TanH: public UnaryOperatorBase<TanH<Target, Scalar>, Target, Scalar>
 {
 public:
-	Scalar linear (dim_type i) const
+	template<class T1>
+	inline auto eval (T1 const& val) const
 	{
-		return std::tanh(this->target.linear(i));
+		return std::tanh(val);
 	}
 };
 
@@ -240,9 +251,10 @@ template<class Target, class Scalar>
 class ArcCosH: public UnaryOperatorBase<ArcCosH<Target, Scalar>, Target, Scalar>
 {
 public:
-	Scalar linear (dim_type i) const
+	template<class T1>
+	inline auto eval (T1 const& val) const
 	{
-		return std::acosh(this->target.linear(i));
+		return std::acosh(val);
 	}
 };
 
@@ -260,9 +272,10 @@ template<class Target, class Scalar>
 class ArcSinH: public UnaryOperatorBase<ArcSinH<Target, Scalar>, Target, Scalar>
 {
 public:
-	Scalar linear (dim_type i) const
+	template<class T1>
+	inline auto eval (T1 const& val) const
 	{
-		return std::asinh(this->target.linear(i));
+		return std::asinh(val);
 	}
 };
 
@@ -280,9 +293,10 @@ template<class Target, class Scalar>
 class ArcTanH: public UnaryOperatorBase<ArcTanH<Target, Scalar>, Target, Scalar>
 {
 public:
-	Scalar linear (dim_type i) const
+	template<class T1>
+	inline auto eval (T1 const& val) const
 	{
-		return std::atanh(this->target.linear(i));
+		return std::atanh(val);
 	}
 };
 
@@ -296,7 +310,7 @@ UnaryOperatorBase<ArcTanH<Target, Scalar>, Target, Scalar> atanh (ArrayBase<Targ
 // &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 // Bessel J_0
 // &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
-template<class T1, class = typename std::enable_if<std::is_fundamental<T1>::value, bool>::type>
+template<class T1, class = typename std::enable_if<!isFtnType<T1>::value, bool>::type>
 auto bessel_j0 (T1 x)
 {
 	return boost::math::cyl_bessel_j(0, x);
@@ -306,9 +320,10 @@ template<class Target, class Scalar>
 class Bessel_J0: public UnaryOperatorBase<Bessel_J0<Target, Scalar>, Target, Scalar>
 {
 public:
-	Scalar linear (dim_type i) const
+	template<class T1>
+	inline auto eval (T1 const& val) const
 	{
-		return boost::math::cyl_bessel_j(0, this->target.linear(i));
+		return boost::math::cyl_bessel_j(0, val);
 	}
 };
 
@@ -322,7 +337,7 @@ UnaryOperatorBase<Bessel_J0<Target, Scalar>, Target, Scalar> bessel_j0 (ArrayBas
 // &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 // Bessel J_1
 // &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
-template<class T1, class = typename std::enable_if<std::is_fundamental<T1>::value, bool>::type>
+template<class T1, class = typename std::enable_if<!isFtnType<T1>::value, bool>::type>
 auto bessel_j1 (T1 x)
 {
 	return boost::math::cyl_bessel_j(1, x);
@@ -332,9 +347,10 @@ template<class Target, class Scalar>
 class Bessel_J1: public UnaryOperatorBase<Bessel_J1<Target, Scalar>, Target, Scalar>
 {
 public:
-	Scalar linear (dim_type i) const
+	template<class T1>
+	inline auto eval (T1 const& val) const
 	{
-		return boost::math::cyl_bessel_j(1, this->target.linear(i));
+		return boost::math::cyl_bessel_j(1, val);
 	}
 };
 

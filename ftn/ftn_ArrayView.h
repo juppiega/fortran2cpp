@@ -20,11 +20,6 @@ private:
 	std::array<dim_type, nDims> _start;
 	std::array<dim_type, nDims> _stop;
 	std::array<dim_type, nDims> _stride;
-	std::array<dim_type, nDims> _dimLengths;
-	std::array<size_t, nDims> _cumDimLengths;
-	std::array<size_t, nDims> _linStrides;
-	size_t _numel;
-	size_t _firstInd;
 	int _dimCounter;
 
 public:
@@ -65,16 +60,16 @@ public:
 
 	int numDims () const;
 
-	Array<dim_type> shape () const;
+	Array<dim_type, 1> shape () const;
 
-	Array<dim_type> lbound () const;
+	Array<dim_type, 1> lbound () const;
 	dim_type lbound (dim_type dimNumber) const;
 
-	Array<dim_type> ubound () const;
+	Array<dim_type, 1> ubound () const;
 	dim_type ubound (dim_type dimNumber) const;
 
 	size_t size () const;
-	size_t size (size_t dimNumber) const;
+	size_t size (int dimNumber) const;
 
 	inline dim_type findStart (dim_type& ind)
 	{
@@ -91,6 +86,11 @@ public:
 		return 1;
 	}
 
+	constexpr bool isArrayView() const
+	{
+		return true;
+	}
+
 	inline dim_type findStart (span& sp);
 	inline dim_type findStop (span& sp);
 	inline dim_type findStride (span& sp) const;
@@ -100,7 +100,8 @@ public:
 //	template<class Derived, class Scalar2>
 //	void reshape (ArrayBase<Derived, Scalar2> const& newDims); // Lisaa Ftn ja Operator Baseen
 
-	ArrayView& operator= (const Scalar& x);
+	template<class Scalar2>
+	typename std::enable_if<!isFtnType<Scalar2>::value, ArrayView>::type& operator= (const Scalar2& x);
 
 	std::string toString () const;
 };

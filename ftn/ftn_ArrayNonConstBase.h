@@ -13,7 +13,7 @@
 namespace ftn
 {
 
-template<class Scalar>
+template<class Scalar, int nDims>
 class Array;
 
 template<class RefType, int nDims, class Scalar>
@@ -149,9 +149,9 @@ public:
 		return static_cast<Derived&>(*this).linear(index);
 	}
 
-	Array<dim_type> shape() const;
-	Array<dim_type> lbound() const;
-	Array<dim_type> ubound() const;
+	Array<dim_type, 1> shape() const;
+	Array<dim_type, 1> lbound() const;
+	Array<dim_type, 1> ubound() const;
 
 	template<class OtherDimType, long unsigned int T>
 	size_t sub2ind(std::array<OtherDimType, T>& ind)
@@ -187,8 +187,14 @@ public:
 		return static_cast<const Derived&>(*this);
 	}
 
+	constexpr bool isArrayView() const
+	{
+		return static_cast<Derived const&>(*this).isArrayView();
+	}
+
+	// At ftn_ArrayImplementations.h
 	void indexOutOfBounds(dim_type index, int dimNumber) const;
-	void linearIndexOutOfBounds(dim_type index) const;
+	void linearIndexOutOfBounds(size_t index) const;
 
 	void wrongDimension(int dimNum) const;
 };

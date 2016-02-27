@@ -2,38 +2,34 @@
 #define FTN_ARRAY_H_
 #include "ftn_ArrayNonConstBase.h"
 #include "ftn_Span.h"
+#include "ftn_traits.h"
 
 namespace ftn
 {
 // TODO:
-// - Lisää Arraylle optional template parameter, joka kertoo, onko Dynamic shape (defaulttina false).
-// - Lisää template, joka kertoo, onko jokin luokka peritty ArrayBasesta.
-// - Lisää constexpr-funktio jokaiselle luokalle, joka kertoo, onko kyseessä ArrayView (voi vaihdella ArrayRef:ssa, joten on oltava funktio jokaisessa tyypissä erikseen!).
-// - Lisää Array:lle ja ArrayViewille 0-pohjaiset (m,n,o,...):t.
-// - Lisää operaattoreille moniulotteiset 0-pohjaiset (m,n,o,...):t.
-// - Array:ssa assignment lineaarinen, jos operaattori ei sisällä yhtään ArrayView:a. Muutoin käytä (m,n,o,...)
-// - ArrayView:ssa assignment aina käyttäen (m,n,o,...):a.
+// - Kaikki linear(), zb () ja operator() inlineiksi.
 // - Mieti, milloin assignmentissa tulee ottaa huomioon temporaryt.
+// - Lisää inlinausta.
+
 template<class RefType, int nDims, class Scalar>
 class ArrayView;
 
-template<class Scalar>
-class Array: public ArrayNonConstBase<Array<Scalar>, Scalar>
+template<class Scalar, int nDims>
+class Array: public ArrayNonConstBase<Array<Scalar, nDims>, Scalar>
 {
 private:
 	bool _isAllocated;
-	int _nDims;
 	int _dimCounter;
-	std::array<dim_type, maxDims> _beginIndices;
-	std::array<size_t, maxDims> _strides;
-	std::array<dim_type, maxDims> _dimLengths;
+	std::array<dim_type, nDims> _beginIndices;
+	std::array<size_t, nDims> _strides;
+	std::array<dim_type, nDims> _dimLengths;
 	std::vector<Scalar> _mdArray;
 
 	dim_type findInitializationValues(dim_type initVal);
 	dim_type findInitializationValues(span initVal);
 
 public:
-	using ArrayNonConstBase<Array<Scalar>, Scalar>::operator(); // MUISTA LISATA UUSIIN CONTAINEREIHIN!!!!
+	using ArrayNonConstBase<Array<Scalar, nDims>, Scalar>::operator(); // MUISTA LISATA UUSIIN CONTAINEREIHIN!!!!
 
 	template<class T1, class ... OtherTypes>
 	explicit Array(T1 m, OtherTypes ... otherInitVals);
@@ -41,16 +37,16 @@ public:
 	template<class Derived, class Scalar2>
 	Array(ArrayBase<Derived, Scalar2> const& array);
 
-	Array(Array<Scalar>& array);
+	Array(Array<Scalar, nDims>& array);
 
-	Array(Array<Scalar> && other) noexcept;
+	Array(Array<Scalar, nDims> && other) noexcept;
 
-	Array<Scalar>& operator=(Array<Scalar> && other) noexcept;
+	Array<Scalar, nDims>& operator=(Array<Scalar, nDims> && other) noexcept;
 
 	template<class Derived, class Scalar2>
-	Array<Scalar>& operator=(ArrayBase<Derived, Scalar2> const& array);
+	Array<Scalar, nDims>& operator=(ArrayBase<Derived, Scalar2> const& array);
 
-	Array<Scalar>& operator=(Array<Scalar>& array);
+	Array<Scalar, nDims>& operator=(Array<Scalar, nDims>& array);
 
 	Scalar zb(dim_type m) const;
 	Scalar zb(dim_type m, dim_type n) const;
@@ -75,18 +71,18 @@ public:
 	Scalar linear(size_t index) const;
 	Scalar& linear(size_t index);
 
-	Array<dim_type> shape() const;
+	Array<dim_type, 1> shape() const;
 
-	Array<dim_type> lbound() const;
+	Array<dim_type, 1> lbound() const;
 	dim_type lbound(dim_type dimNumber) const;
 
-	Array<dim_type> ubound() const;
+	Array<dim_type, 1> ubound() const;
 	dim_type ubound(dim_type dimNumber) const;
 
 	size_t linearStride (dim_type dimNumber) const;
 
 	size_t size() const;
-	size_t size(size_t dimNumber) const;
+	size_t size(int dimNumber) const;
 
 	template<class OtherDimType, long unsigned int T>
 	size_t sub2ind (std::array<OtherDimType, T>& ind);
@@ -96,7 +92,13 @@ public:
 	template<class Derived, class Scalar2>
 	void reshape(ArrayBase<Derived, Scalar2> const& newDims); // Lisaa Ftn ja Operator Baseen
 
-	Array<Scalar>& operator=(const Scalar& x);
+	template<class Scalar2>
+	typename std::enable_if<!isFtnType<Scalar2>::value, Array<Scalar, nDims> >::type& operator=(const Scalar2& x);
+
+	constexpr bool isArrayView() const
+	{
+		return false;
+	}
 
 	std::string toString() const;
 };

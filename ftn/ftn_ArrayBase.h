@@ -5,7 +5,7 @@
 namespace ftn
 {
 
-template<class Scalar>
+template<class Scalar, int nDims>
 class Array;
 
 template<class Derived, class Scalar>
@@ -20,7 +20,7 @@ public:
 	{
 		return static_cast<Derived const&>(*this).size();
 	}
-	size_t size(size_t dimNumber) const
+	size_t size(int dimNumber) const
 	{
 		return static_cast<Derived const&>(*this).size(dimNumber);
 	}
@@ -30,42 +30,33 @@ public:
 		return static_cast<Derived const&>(*this).lbound(dimNumber);
 	}
 
-	Scalar zb(dim_type m) const
+	auto zb(dim_type m) const
 	{
 		return static_cast<Derived const&>(*this).zb(m);
 	}
-	Scalar zb(dim_type m, dim_type n) const
+	auto zb(dim_type m, dim_type n) const
 	{
 		return static_cast<Derived const&>(*this).zb(m, n);
 	}
-	Scalar zb(dim_type m, dim_type n, dim_type o) const
+	auto zb(dim_type m, dim_type n, dim_type o) const
 	{
 		return static_cast<Derived const&>(*this).zb(m, n, o);
 	}
-	Scalar zb(dim_type m, dim_type n, dim_type o, dim_type p) const
+	auto zb(dim_type m, dim_type n, dim_type o, dim_type p) const
 	{
 		return static_cast<Derived const&>(*this).zb(m, n, o, p);
 	}
 
-	Scalar operator()(dim_type index) const
-	{
-		return static_cast<Derived const&>(*this)(index);
-	}
-	Scalar& operator()(dim_type index)
-	{
-		return static_cast<Derived&>(*this)(index);
-	}
-
-	Scalar linear(dim_type index) const
+	auto linear(size_t index) const
 	{
 		return static_cast<Derived const&>(*this).linear(index);
 	}
-	Scalar& linear(dim_type index)
+	Scalar& linear(size_t index)
 	{
 		return static_cast<Derived&>(*this).linear(index);
 	}
-	Array<dim_type> shape() const;
-	Array<dim_type> lbound() const;
+	Array<dim_type, 1> shape() const;
+	Array<dim_type, 1> lbound() const;
 
 	int numDims() const
 	{
@@ -86,6 +77,11 @@ public:
 	}
 
 	operator Scalar() const;
+
+	constexpr bool isArrayView() const
+	{
+		return static_cast<Derived const&>(*this).isArrayView();
+	}
 
 	template<class T1, class T2>
 	friend std::ostream& operator<<(std::ostream & os,
@@ -111,19 +107,19 @@ void checkNonNegativeConstructLength(dim_type length)
 	}
 }
 
-template<class Derived, class Scalar>
-ArrayBase<Derived, Scalar>::operator Scalar() const
-{
-#ifdef FTN_DEBUG
-	if (size() != 1)
-	{
-		std::ostringstream strStream;
-		strStream << "Trying to convert an array of size " << size() << " into scalar!";
-		throw std::domain_error(strStream.str());
-	}
-#endif
-	return linear(1);
-}
+//template<class Derived, class Scalar>
+//ArrayBase<Derived, Scalar>::operator Scalar() const
+//{
+//#ifdef FTN_DEBUG
+//	if (size() != 1)
+//	{
+//		std::ostringstream strStream;
+//		strStream << "Trying to convert an array of size " << size() << " into scalar!";
+//		throw std::domain_error(strStream.str());
+//	}
+//#endif
+//	return linear(0);
+//}
 
 }
 
