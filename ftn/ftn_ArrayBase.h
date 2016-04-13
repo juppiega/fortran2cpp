@@ -5,7 +5,7 @@
 namespace ftn
 {
 
-template<class Scalar, int nDims>
+template<class Scalar, int nDims, bool isAllocatable = false>
 class Array;
 
 template<class Derived, class Scalar>

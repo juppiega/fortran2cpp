@@ -6,9 +6,9 @@
 namespace ftn
 {
 
-template<class Scalar, int nDims>
+template<class Scalar, int nDims, bool isAllocatable>
 template<class T1, class ... OtherTypes>
-Array<Scalar, nDims>::Array(T1 m, OtherTypes ... otherInitVals)
+Array<Scalar, nDims, isAllocatable>::Array(T1 m, OtherTypes ... otherInitVals)
 {
 	static_assert(!isFtnType<T1>::value && nDims == (1 + sizeof...(otherInitVals)), "Dimension specification template parameter must equal the number of constructor arguments!");
 	static_assert(!isFtnType<T1>::value && nDims <= maxDims, "Ftn only supports arrays of dimension <= 4!");
@@ -29,9 +29,9 @@ Array<Scalar, nDims>::Array(T1 m, OtherTypes ... otherInitVals)
 	_numel = numel;
 }
 
-template<class Scalar, int nDims>
+template<class Scalar, int nDims, bool isAllocatable>
 template<class Derived, class Scalar2>
-Array<Scalar, nDims>::Array(ArrayBase<Derived, Scalar2> const& array) :
+Array<Scalar, nDims, isAllocatable>::Array(ArrayBase<Derived, Scalar2> const& array) :
 		_dimCounter(0)
 {
 	_isAllocated = true;
@@ -99,8 +99,8 @@ Array<Scalar, nDims>::Array(ArrayBase<Derived, Scalar2> const& array) :
 	}
 }
 
-template<class Scalar, int nDims>
-Array<Scalar, nDims>::Array(Array<Scalar, nDims>& array) :
+template<class Scalar, int nDims, bool isAllocatable>
+Array<Scalar, nDims, isAllocatable>::Array(Array<Scalar, nDims, isAllocatable>& array) :
 		_dimCounter(0)
 {
 	_isAllocated = true;
@@ -126,8 +126,8 @@ Array<Scalar, nDims>::Array(Array<Scalar, nDims>& array) :
 
 }
 
-template<class Scalar, int nDims>
-Array<Scalar, nDims>::Array(Array<Scalar, nDims> && other) noexcept : _dimCounter(0)
+template<class Scalar, int nDims, bool isAllocatable>
+Array<Scalar, nDims, isAllocatable>::Array(Array<Scalar, nDims, isAllocatable> && other) noexcept : _dimCounter(0)
 {
 	_isAllocated = true;
 	_dimLengths = std::move(other._dimLengths);
@@ -138,9 +138,9 @@ Array<Scalar, nDims>::Array(Array<Scalar, nDims> && other) noexcept : _dimCounte
 	other._mdArray = nullptr;
 }
 
-template<class Scalar, int nDims>
-Array<Scalar, nDims>& Array<Scalar, nDims>::operator=(
-		Array<Scalar, nDims> && other) noexcept
+template<class Scalar, int nDims, bool isAllocatable>
+Array<Scalar, nDims, isAllocatable>& Array<Scalar, nDims, isAllocatable>::operator=(
+		Array<Scalar, nDims, isAllocatable> && other) noexcept
 {
 #ifdef FTN_DEBUG
 	if (numDims() != other.numDims())
@@ -150,7 +150,7 @@ Array<Scalar, nDims>& Array<Scalar, nDims>::operator=(
 		throw std::domain_error(strStream.str());
 	}
 #endif
-	if (!_isAllocated || !sameShape(*this, other))
+	if (isAllocatable && (!_isAllocated || !sameShape(*this, other)))
 	{
 		_beginIndices.fill(1);
 		_dimLengths = std::move(other._dimLengths);
@@ -166,9 +166,9 @@ Array<Scalar, nDims>& Array<Scalar, nDims>::operator=(
 	return *this;
 }
 
-template<class Scalar, int nDims>
+template<class Scalar, int nDims, bool isAllocatable>
 template<class Derived, class Scalar2>
-Array<Scalar, nDims>& Array<Scalar, nDims>::operator=(
+inline Array<Scalar, nDims, isAllocatable>& Array<Scalar, nDims, isAllocatable>::operator=(
 		ArrayBase<Derived, Scalar2> const& array)
 {
 #ifdef FTN_DEBUG
@@ -180,9 +180,8 @@ Array<Scalar, nDims>& Array<Scalar, nDims>::operator=(
 	}
 #endif
 
-	if (!_isAllocated || !(sameShape(*this, array)))
+	if (isAllocatable && (!_isAllocated || !sameShape(*this, array)))
 	{
-
 		for (int i = 1; i <= nDims; i++)
 		{
 			_beginIndices[i - 1] = array.lbound(i);
@@ -251,22 +250,22 @@ Array<Scalar, nDims>& Array<Scalar, nDims>::operator=(
 	return *this;
 }
 
-template<class Scalar, int nDims>
-Array<Scalar, nDims>& Array<Scalar, nDims>::operator=(
-		Array<Scalar, nDims>& array)
+template<class Scalar, int nDims, bool isAllocatable>
+Array<Scalar, nDims, isAllocatable>& Array<Scalar, nDims, isAllocatable>::operator=(
+		Array<Scalar, nDims, isAllocatable>& array)
 {
-	ArrayNonConstBase<Array<Scalar, nDims>, Scalar>& arrayBaseInstance = array;
+	ArrayNonConstBase<Array<Scalar, nDims, isAllocatable>, Scalar>& arrayBaseInstance = array;
 	this->operator=(arrayBaseInstance);
 }
 
-template<class Scalar, int nDims>
-int Array<Scalar, nDims>::numDims() const
+template<class Scalar, int nDims, bool isAllocatable>
+int Array<Scalar, nDims, isAllocatable>::numDims() const
 {
 	return nDims;
 }
 
-template<class Scalar, int nDims>
-Array<dim_type, 1> Array<Scalar, nDims>::shape() const
+template<class Scalar, int nDims, bool isAllocatable>
+Array<dim_type, 1> Array<Scalar, nDims, isAllocatable>::shape() const
 {
 	Array<dim_type, 1> shape(nDims);
 
@@ -278,8 +277,8 @@ Array<dim_type, 1> Array<Scalar, nDims>::shape() const
 	return shape;
 }
 
-template<class Scalar, int nDims>
-std::string Array<Scalar, nDims>::toString() const
+template<class Scalar, int nDims, bool isAllocatable>
+std::string Array<Scalar, nDims, isAllocatable>::toString() const
 {
 	std::ostringstream oss;
 	if (_numel > 0)
@@ -288,8 +287,8 @@ std::string Array<Scalar, nDims>::toString() const
 	return oss.str();
 }
 
-template<class Scalar, int nDims>
-dim_type Array<Scalar, nDims>::findInitializationValues(dim_type initVal)
+template<class Scalar, int nDims, bool isAllocatable>
+dim_type Array<Scalar, nDims, isAllocatable>::findInitializationValues(dim_type initVal)
 {
 	_beginIndices[_dimCounter] = 1;
 	if (initVal == Dynamic)
@@ -309,8 +308,8 @@ dim_type Array<Scalar, nDims>::findInitializationValues(dim_type initVal)
 	}
 }
 
-template<class Scalar, int nDims>
-dim_type Array<Scalar, nDims>::findInitializationValues(span initVal)
+template<class Scalar, int nDims, bool isAllocatable>
+dim_type Array<Scalar, nDims, isAllocatable>::findInitializationValues(span initVal)
 {
 	if (initVal.stop() == Dynamic)
 	{
@@ -357,8 +356,8 @@ dim_type Array<Scalar, nDims>::findInitializationValues(span initVal)
 	}
 }
 
-template<class Scalar, int nDims>
-dim_type Array<Scalar, nDims>::lbound(dim_type dimNumber) const
+template<class Scalar, int nDims, bool isAllocatable>
+dim_type Array<Scalar, nDims, isAllocatable>::lbound(dim_type dimNumber) const
 {
 #ifdef FTN_DEBUG
 	if (dimNumber < 1 || dimNumber > numDims())
@@ -371,8 +370,8 @@ dim_type Array<Scalar, nDims>::lbound(dim_type dimNumber) const
 	return _beginIndices[dimNumber - 1];
 }
 
-template<class Scalar, int nDims>
-Array<dim_type, 1> Array<Scalar, nDims>::lbound() const
+template<class Scalar, int nDims, bool isAllocatable>
+Array<dim_type, 1> Array<Scalar, nDims, isAllocatable>::lbound() const
 {
 	Array<dim_type, 1> lbounds(nDims);
 	for (int i = 1; i <= nDims; i++)
@@ -420,8 +419,8 @@ void ArrayNonConstBase<Derived, Scalar>::wrongDimension(int dimNum) const
 	}
 }
 
-//template<class Scalar, int nDims>
-//Scalar Array<Scalar, nDims>::operator() (dim_type index) const
+//template<class Scalar, int nDims, bool isAllocatable>
+//Scalar Array<Scalar, nDims, isAllocatable>::operator() (dim_type index) const
 //{
 //#ifdef FTN_DEBUG
 //	indexOutOfBounds(index, 1);
@@ -429,8 +428,8 @@ void ArrayNonConstBase<Derived, Scalar>::wrongDimension(int dimNum) const
 //	return mdArray(index - beginIndices[0]);
 //}
 //
-//template<class Scalar, int nDims>
-//Scalar& Array<Scalar, nDims>::operator() (dim_type index)
+//template<class Scalar, int nDims, bool isAllocatable>
+//Scalar& Array<Scalar, nDims, isAllocatable>::operator() (dim_type index)
 //{
 //#ifdef FTN_DEBUG
 //	indexOutOfBounds(index, 1);
@@ -438,102 +437,102 @@ void ArrayNonConstBase<Derived, Scalar>::wrongDimension(int dimNum) const
 //	return mdArray(index - beginIndices[0]);
 //}
 
-template<class Scalar, int nDims>
-Scalar Array<Scalar, nDims>::zb(dim_type m) const
+template<class Scalar, int nDims, bool isAllocatable>
+Scalar Array<Scalar, nDims, isAllocatable>::zb(dim_type m) const
 {
 	return _mdArray[m];
 }
 
-template<class Scalar, int nDims>
-Scalar Array<Scalar, nDims>::zb(dim_type m, dim_type n) const
+template<class Scalar, int nDims, bool isAllocatable>
+Scalar Array<Scalar, nDims, isAllocatable>::zb(dim_type m, dim_type n) const
 {
 	return _mdArray[m + n * _strides[1]];
 }
 
-template<class Scalar, int nDims>
-Scalar Array<Scalar, nDims>::zb(dim_type m, dim_type n, dim_type o) const
+template<class Scalar, int nDims, bool isAllocatable>
+Scalar Array<Scalar, nDims, isAllocatable>::zb(dim_type m, dim_type n, dim_type o) const
 {
 	return _mdArray[m + n * _strides[1] + o * _strides[2]];
 }
 
-template<class Scalar, int nDims>
-Scalar Array<Scalar, nDims>::zb(dim_type m, dim_type n, dim_type o,
+template<class Scalar, int nDims, bool isAllocatable>
+Scalar Array<Scalar, nDims, isAllocatable>::zb(dim_type m, dim_type n, dim_type o,
 		dim_type p) const
 {
 	return _mdArray[m + n * _strides[1] + o * _strides[2] + p * _strides[3]];
 }
 
-template<class Scalar, int nDims>
-Scalar& Array<Scalar, nDims>::zb(dim_type m)
+template<class Scalar, int nDims, bool isAllocatable>
+Scalar& Array<Scalar, nDims, isAllocatable>::zb(dim_type m)
 {
 	return _mdArray[m];
 }
 
-template<class Scalar, int nDims>
-Scalar& Array<Scalar, nDims>::zb(dim_type m, dim_type n)
+template<class Scalar, int nDims, bool isAllocatable>
+Scalar& Array<Scalar, nDims, isAllocatable>::zb(dim_type m, dim_type n)
 {
 	return _mdArray[m + n * _strides[1]];
 }
 
-template<class Scalar, int nDims>
-Scalar& Array<Scalar, nDims>::zb(dim_type m, dim_type n, dim_type o)
+template<class Scalar, int nDims, bool isAllocatable>
+Scalar& Array<Scalar, nDims, isAllocatable>::zb(dim_type m, dim_type n, dim_type o)
 {
 	return _mdArray[m + n * _strides[1] + o * _strides[2]];
 }
 
-template<class Scalar, int nDims>
-Scalar& Array<Scalar, nDims>::zb(dim_type m, dim_type n, dim_type o, dim_type p)
+template<class Scalar, int nDims, bool isAllocatable>
+Scalar& Array<Scalar, nDims, isAllocatable>::zb(dim_type m, dim_type n, dim_type o, dim_type p)
 {
 	return _mdArray[m + n * _strides[1] + o * _strides[2] + p * _strides[3]];
 }
 
-template<class Scalar, int nDims>
-Scalar Array<Scalar, nDims>::operator()(dim_type m) const
+template<class Scalar, int nDims, bool isAllocatable>
+Scalar Array<Scalar, nDims, isAllocatable>::operator()(dim_type m) const
 {
 #ifdef FTN_DEBUG
-	ArrayNonConstBase<Array<Scalar, nDims>, Scalar>::wrongDimension(1);
-	ArrayNonConstBase<Array<Scalar, nDims>, Scalar>::indexOutOfBounds(m, 1);
+	ArrayNonConstBase<Array<Scalar, nDims, isAllocatable>, Scalar>::wrongDimension(1);
+	ArrayNonConstBase<Array<Scalar, nDims, isAllocatable>, Scalar>::indexOutOfBounds(m, 1);
 #endif
 	return _mdArray[m - _beginIndices[0]];
 }
 
-template<class Scalar, int nDims>
-Scalar Array<Scalar, nDims>::operator()(dim_type m, dim_type n) const
+template<class Scalar, int nDims, bool isAllocatable>
+Scalar Array<Scalar, nDims, isAllocatable>::operator()(dim_type m, dim_type n) const
 {
 #ifdef FTN_DEBUG
-	ArrayNonConstBase<Array<Scalar, nDims>, Scalar>::wrongDimension(2);
-	ArrayNonConstBase<Array<Scalar, nDims>, Scalar>::indexOutOfBounds(m, 1);
-	ArrayNonConstBase<Array<Scalar, nDims>, Scalar>::indexOutOfBounds(n, 2);
+	ArrayNonConstBase<Array<Scalar, nDims, isAllocatable>, Scalar>::wrongDimension(2);
+	ArrayNonConstBase<Array<Scalar, nDims, isAllocatable>, Scalar>::indexOutOfBounds(m, 1);
+	ArrayNonConstBase<Array<Scalar, nDims, isAllocatable>, Scalar>::indexOutOfBounds(n, 2);
 #endif
 	return _mdArray[(m - _beginIndices[0])
 			+ (n - _beginIndices[1]) * _strides[1]];
 }
 
-template<class Scalar, int nDims>
-Scalar Array<Scalar, nDims>::operator()(dim_type m, dim_type n,
+template<class Scalar, int nDims, bool isAllocatable>
+Scalar Array<Scalar, nDims, isAllocatable>::operator()(dim_type m, dim_type n,
 		dim_type o) const
 {
 #ifdef FTN_DEBUG
-	ArrayNonConstBase<Array<Scalar, nDims>, Scalar>::wrongDimension(3);
-	ArrayNonConstBase<Array<Scalar, nDims>, Scalar>::indexOutOfBounds(m, 1);
-	ArrayNonConstBase<Array<Scalar, nDims>, Scalar>::indexOutOfBounds(n, 2);
-	ArrayNonConstBase<Array<Scalar, nDims>, Scalar>::indexOutOfBounds(o, 3);
+	ArrayNonConstBase<Array<Scalar, nDims, isAllocatable>, Scalar>::wrongDimension(3);
+	ArrayNonConstBase<Array<Scalar, nDims, isAllocatable>, Scalar>::indexOutOfBounds(m, 1);
+	ArrayNonConstBase<Array<Scalar, nDims, isAllocatable>, Scalar>::indexOutOfBounds(n, 2);
+	ArrayNonConstBase<Array<Scalar, nDims, isAllocatable>, Scalar>::indexOutOfBounds(o, 3);
 #endif
 	return _mdArray[(m - _beginIndices[0])
 			+ (n - _beginIndices[1]) * _strides[1]
 			+ (o - _beginIndices[2]) * _strides[2]];
 }
 
-template<class Scalar, int nDims>
-Scalar Array<Scalar, nDims>::operator()(dim_type m, dim_type n, dim_type o,
+template<class Scalar, int nDims, bool isAllocatable>
+Scalar Array<Scalar, nDims, isAllocatable>::operator()(dim_type m, dim_type n, dim_type o,
 		dim_type p) const
 {
 #ifdef FTN_DEBUG
-	ArrayNonConstBase<Array<Scalar, nDims>, Scalar>::wrongDimension(4);
-	ArrayNonConstBase<Array<Scalar, nDims>, Scalar>::indexOutOfBounds(m, 1);
-	ArrayNonConstBase<Array<Scalar, nDims>, Scalar>::indexOutOfBounds(n, 2);
-	ArrayNonConstBase<Array<Scalar, nDims>, Scalar>::indexOutOfBounds(o, 3);
-	ArrayNonConstBase<Array<Scalar, nDims>, Scalar>::indexOutOfBounds(p, 4);
+	ArrayNonConstBase<Array<Scalar, nDims, isAllocatable>, Scalar>::wrongDimension(4);
+	ArrayNonConstBase<Array<Scalar, nDims, isAllocatable>, Scalar>::indexOutOfBounds(m, 1);
+	ArrayNonConstBase<Array<Scalar, nDims, isAllocatable>, Scalar>::indexOutOfBounds(n, 2);
+	ArrayNonConstBase<Array<Scalar, nDims, isAllocatable>, Scalar>::indexOutOfBounds(o, 3);
+	ArrayNonConstBase<Array<Scalar, nDims, isAllocatable>, Scalar>::indexOutOfBounds(p, 4);
 #endif
 	return _mdArray[(m - _beginIndices[0])
 			+ (n - _beginIndices[1]) * _strides[1]
@@ -541,52 +540,52 @@ Scalar Array<Scalar, nDims>::operator()(dim_type m, dim_type n, dim_type o,
 			+ (p - _beginIndices[3]) * _strides[3]];
 }
 
-template<class Scalar, int nDims>
-Scalar& Array<Scalar, nDims>::operator()(dim_type m)
+template<class Scalar, int nDims, bool isAllocatable>
+Scalar& Array<Scalar, nDims, isAllocatable>::operator()(dim_type m)
 {
 #ifdef FTN_DEBUG
-	ArrayNonConstBase<Array<Scalar, nDims>, Scalar>::wrongDimension(1);
-	ArrayNonConstBase<Array<Scalar, nDims>, Scalar>::indexOutOfBounds(m, 1);
+	ArrayNonConstBase<Array<Scalar, nDims, isAllocatable>, Scalar>::wrongDimension(1);
+	ArrayNonConstBase<Array<Scalar, nDims, isAllocatable>, Scalar>::indexOutOfBounds(m, 1);
 #endif
 	return _mdArray[m - _beginIndices[0]];
 }
 
-template<class Scalar, int nDims>
-Scalar& Array<Scalar, nDims>::operator()(dim_type m, dim_type n)
+template<class Scalar, int nDims, bool isAllocatable>
+Scalar& Array<Scalar, nDims, isAllocatable>::operator()(dim_type m, dim_type n)
 {
 #ifdef FTN_DEBUG
-	ArrayNonConstBase<Array<Scalar, nDims>, Scalar>::wrongDimension(2);
-	ArrayNonConstBase<Array<Scalar, nDims>, Scalar>::indexOutOfBounds(m, 1);
-	ArrayNonConstBase<Array<Scalar, nDims>, Scalar>::indexOutOfBounds(n, 2);
+	ArrayNonConstBase<Array<Scalar, nDims, isAllocatable>, Scalar>::wrongDimension(2);
+	ArrayNonConstBase<Array<Scalar, nDims, isAllocatable>, Scalar>::indexOutOfBounds(m, 1);
+	ArrayNonConstBase<Array<Scalar, nDims, isAllocatable>, Scalar>::indexOutOfBounds(n, 2);
 #endif
 	return _mdArray[(m - _beginIndices[0])
 			+ (n - _beginIndices[1]) * _strides[1]];
 }
 
-template<class Scalar, int nDims>
-Scalar& Array<Scalar, nDims>::operator()(dim_type m, dim_type n, dim_type o)
+template<class Scalar, int nDims, bool isAllocatable>
+Scalar& Array<Scalar, nDims, isAllocatable>::operator()(dim_type m, dim_type n, dim_type o)
 {
 #ifdef FTN_DEBUG
-	ArrayNonConstBase<Array<Scalar, nDims>, Scalar>::wrongDimension(3);
-	ArrayNonConstBase<Array<Scalar, nDims>, Scalar>::indexOutOfBounds(m, 1);
-	ArrayNonConstBase<Array<Scalar, nDims>, Scalar>::indexOutOfBounds(n, 2);
-	ArrayNonConstBase<Array<Scalar, nDims>, Scalar>::indexOutOfBounds(o, 3);
+	ArrayNonConstBase<Array<Scalar, nDims, isAllocatable>, Scalar>::wrongDimension(3);
+	ArrayNonConstBase<Array<Scalar, nDims, isAllocatable>, Scalar>::indexOutOfBounds(m, 1);
+	ArrayNonConstBase<Array<Scalar, nDims, isAllocatable>, Scalar>::indexOutOfBounds(n, 2);
+	ArrayNonConstBase<Array<Scalar, nDims, isAllocatable>, Scalar>::indexOutOfBounds(o, 3);
 #endif
 	return _mdArray[(m - _beginIndices[0])
 			+ (n - _beginIndices[1]) * _strides[1]
 			+ (o - _beginIndices[2]) * _strides[2]];
 }
 
-template<class Scalar, int nDims>
-Scalar& Array<Scalar, nDims>::operator()(dim_type m, dim_type n, dim_type o,
+template<class Scalar, int nDims, bool isAllocatable>
+Scalar& Array<Scalar, nDims, isAllocatable>::operator()(dim_type m, dim_type n, dim_type o,
 		dim_type p)
 {
 #ifdef FTN_DEBUG
-	ArrayNonConstBase<Array<Scalar, nDims>, Scalar>::wrongDimension(4);
-	ArrayNonConstBase<Array<Scalar, nDims>, Scalar>::indexOutOfBounds(m, 1);
-	ArrayNonConstBase<Array<Scalar, nDims>, Scalar>::indexOutOfBounds(n, 2);
-	ArrayNonConstBase<Array<Scalar, nDims>, Scalar>::indexOutOfBounds(o, 3);
-	ArrayNonConstBase<Array<Scalar, nDims>, Scalar>::indexOutOfBounds(p, 4);
+	ArrayNonConstBase<Array<Scalar, nDims, isAllocatable>, Scalar>::wrongDimension(4);
+	ArrayNonConstBase<Array<Scalar, nDims, isAllocatable>, Scalar>::indexOutOfBounds(m, 1);
+	ArrayNonConstBase<Array<Scalar, nDims, isAllocatable>, Scalar>::indexOutOfBounds(n, 2);
+	ArrayNonConstBase<Array<Scalar, nDims, isAllocatable>, Scalar>::indexOutOfBounds(o, 3);
+	ArrayNonConstBase<Array<Scalar, nDims, isAllocatable>, Scalar>::indexOutOfBounds(p, 4);
 #endif
 	return _mdArray[(m - _beginIndices[0])
 			+ (n - _beginIndices[1]) * _strides[1]
@@ -594,32 +593,32 @@ Scalar& Array<Scalar, nDims>::operator()(dim_type m, dim_type n, dim_type o,
 			+ (p - _beginIndices[3]) * _strides[3]];
 }
 
-template<class Scalar, int nDims>
-Scalar Array<Scalar, nDims>::linear(size_t index) const
+template<class Scalar, int nDims, bool isAllocatable>
+Scalar Array<Scalar, nDims, isAllocatable>::linear(size_t index) const
 {
 #ifdef FTN_DEBUG
-	ArrayNonConstBase<Array<Scalar, nDims>, Scalar>::linearIndexOutOfBounds(index);
+	ArrayNonConstBase<Array<Scalar, nDims, isAllocatable>, Scalar>::linearIndexOutOfBounds(index);
 #endif
 	return _mdArray[index];
 }
 
-template<class Scalar, int nDims>
-Scalar& Array<Scalar, nDims>::linear(size_t index)
+template<class Scalar, int nDims, bool isAllocatable>
+Scalar& Array<Scalar, nDims, isAllocatable>::linear(size_t index)
 {
 #ifdef FTN_DEBUG
-	ArrayNonConstBase<Array<Scalar, nDims>, Scalar>::linearIndexOutOfBounds(index);
+	ArrayNonConstBase<Array<Scalar, nDims, isAllocatable>, Scalar>::linearIndexOutOfBounds(index);
 #endif
 	return _mdArray[index];
 }
 
-template<class Scalar, int nDims>
-size_t Array<Scalar, nDims>::size() const
+template<class Scalar, int nDims, bool isAllocatable>
+size_t Array<Scalar, nDims, isAllocatable>::size() const
 {
 	return _numel;
 }
 
-template<class Scalar, int nDims>
-size_t Array<Scalar, nDims>::size(int dimNumber) const
+template<class Scalar, int nDims, bool isAllocatable>
+size_t Array<Scalar, nDims, isAllocatable>::size(int dimNumber) const
 {
 #ifdef FTN_DEBUG
 	if (dimNumber < 1 || dimNumber > numDims())
@@ -632,9 +631,9 @@ size_t Array<Scalar, nDims>::size(int dimNumber) const
 	return _dimLengths[dimNumber - 1];
 }
 
-template<class Scalar, int nDims>
+template<class Scalar, int nDims, bool isAllocatable>
 template<class OtherDimType, long unsigned int T>
-size_t Array<Scalar, nDims>::sub2ind(std::array<OtherDimType, T>& ind)
+size_t Array<Scalar, nDims, isAllocatable>::sub2ind(std::array<OtherDimType, T>& ind)
 {
 	size_t linearInd = 0;
 	for (int i = 0; i < numDims(); i++)
@@ -644,8 +643,8 @@ size_t Array<Scalar, nDims>::sub2ind(std::array<OtherDimType, T>& ind)
 	return linearInd + 1;
 }
 
-template<class Scalar, int nDims>
-size_t Array<Scalar, nDims>::linearStride(dim_type dimNumber) const
+template<class Scalar, int nDims, bool isAllocatable>
+size_t Array<Scalar, nDims, isAllocatable>::linearStride(dim_type dimNumber) const
 {
 #ifdef FTN_DEBUG
 	if (dimNumber < 1 || dimNumber > numDims())
@@ -658,8 +657,8 @@ size_t Array<Scalar, nDims>::linearStride(dim_type dimNumber) const
 	return _strides[dimNumber - 1];
 }
 
-template<class Scalar, int nDims>
-dim_type Array<Scalar, nDims>::ubound(dim_type dimNumber) const
+template<class Scalar, int nDims, bool isAllocatable>
+dim_type Array<Scalar, nDims, isAllocatable>::ubound(dim_type dimNumber) const
 {
 #ifdef FTN_DEBUG
 	if (dimNumber < 1 || dimNumber > numDims())
@@ -672,8 +671,8 @@ dim_type Array<Scalar, nDims>::ubound(dim_type dimNumber) const
 	return _beginIndices[dimNumber - 1] + _dimLengths[dimNumber - 1] - 1;
 }
 
-template<class Scalar, int nDims>
-Array<dim_type, 1> Array<Scalar, nDims>::ubound() const
+template<class Scalar, int nDims, bool isAllocatable>
+Array<dim_type, 1> Array<Scalar, nDims, isAllocatable>::ubound() const
 {
 	int n = numDims();
 	Array<dim_type, 1> ubounds(n);
@@ -686,16 +685,16 @@ Array<dim_type, 1> Array<Scalar, nDims>::ubound() const
 	return ubounds;
 }
 
-template<class Scalar, int nDims>
-Array<Scalar, nDims>::~Array()
+template<class Scalar, int nDims, bool isAllocatable>
+Array<Scalar, nDims, isAllocatable>::~Array()
 {
 	delete[] _mdArray;
 }
 
-template<class Scalar, int nDims>
+template<class Scalar, int nDims, bool isAllocatable>
 template<class Scalar2>
-typename std::enable_if<!isFtnType<Scalar2>::value, Array<Scalar, nDims> >::type& Array<
-		Scalar, nDims>::operator=(const Scalar2& x)
+typename std::enable_if<!isFtnType<Scalar2>::value, Array<Scalar, nDims, isAllocatable> >::type& Array<
+		Scalar, nDims, isAllocatable>::operator=(const Scalar2& x)
 {
 #ifdef FTN_DEBUG
 	if (!_isAllocated)

@@ -20,6 +20,7 @@ private:
 	std::array<dim_type, nDims> _start;
 	std::array<dim_type, nDims> _stop;
 	std::array<dim_type, nDims> _stride;
+	std::array<dim_type, nDims> _dimLengths;
 	int _dimCounter;
 
 public:

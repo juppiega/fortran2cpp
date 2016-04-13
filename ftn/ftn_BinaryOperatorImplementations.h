@@ -236,6 +236,34 @@ BinaryOperatorBase<Bessel_JN<LeftSide, RightSide, ScalarL, ScalarR>, LeftSide, R
 }
 // &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 
+// &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+// Bessel Y_N
+// &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+template<class T1, class T2, class = typename std::enable_if<!isFtnType<T2>::value, bool>::type>
+auto bessel_yn (T1 n, T2 x)
+{
+	return boost::math::cyl_neumann(n, x);
+}
+
+template<class LeftSide, class RightSide, class ScalarL, class ScalarR>
+class Bessel_YN: public BinaryOperatorBase<Bessel_YN<LeftSide, RightSide, ScalarL, ScalarR>, LeftSide, RightSide, ScalarL, ScalarR>
+{
+public:
+	template<class T1, class T2>
+	inline auto eval (T1 const& left, T2 const& right) const
+	{
+		return boost::math::cyl_neumann(left, right);
+	}
+};
+
+template<class LeftSide, class RightSide, class ScalarR, class ScalarL = LeftSide>
+BinaryOperatorBase<Bessel_YN<LeftSide, RightSide, ScalarL, ScalarR>, LeftSide, RightSide, ScalarL, ScalarR> bessel_yn (
+		LeftSide const& a, ArrayBase<RightSide, ScalarR> const& b) // Exceptionally not ArrayBase<LeftSide, Scalar> const& a!
+{
+	return BinaryOperatorBase<Bessel_YN<LeftSide, RightSide, ScalarL, ScalarR>, LeftSide, RightSide, ScalarL, ScalarR>(a, b);
+}
+// &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+
 }
 
 

@@ -21,6 +21,11 @@ ArrayView<RefType, nDims, Scalar>::ArrayView(RefType& arrayRef, T1& m,
 	_stride =
 	{	findStride(m), (findStride(otherInitVals))...};
 
+	for (int i = 0; i < nDims; i++)
+	{
+		_dimLengths[i] = std::max((dim_type)0, (_stop[i] - _start[i] + _stride[i]) / _stride[i]);
+	}
+
 	// TODO: LISAA DEBUGGAUS-KOODIA!!!
 }
 
@@ -33,6 +38,7 @@ ArrayView<RefType, nDims, Scalar>::ArrayView(
 	_start = std::move(other._start);
 	_stop = std::move(other._stop);
 	_stride = std::move(other._stride);
+	_dimLengths = std::move(other._dimLengths);
 }
 
 template<class RefType, int nDims, class Scalar>
@@ -101,8 +107,7 @@ size_t ArrayView<RefType, nDims, Scalar>::size(int dimNumber) const
 		throw std::invalid_argument(strStream.str());
 	}
 #endif
-	int i = dimNumber - 1;
-	return std::max((dim_type)0, (_stop[i] - _start[i] + _stride[i]) / _stride[i]);
+	return _dimLengths[dimNumber - 1];
 }
 
 template<class RefType, int nDims, class Scalar>
@@ -136,10 +141,9 @@ dim_type ArrayView<RefType, nDims, Scalar>::lbound(dim_type dimNumber) const
 template<class RefType, int nDims, class Scalar>
 Array<dim_type, 1> ArrayView<RefType, nDims, Scalar>::shape() const
 {
-	int n = numDims();
-	Array<dim_type, 1> shape(n);
+	Array<dim_type, 1> shape(nDims);
 
-	for (int i = 1; i <= n; i++)
+	for (int i = 1; i <= nDims; i++)
 	{
 		shape(i) = size(i);
 	}
@@ -225,10 +229,9 @@ dim_type ArrayView<RefType, nDims, Scalar>::ubound(dim_type dimNumber) const
 template<class RefType, int nDims, class Scalar>
 Array<dim_type, 1> ArrayView<RefType, nDims, Scalar>::ubound() const
 {
-	int n = numDims();
-	Array<dim_type, 1> ubounds(n);
+	Array<dim_type, 1> ubounds(nDims);
 
-	for (int i = 1; i <= n; i++)
+	for (int i = 1; i <= nDims; i++)
 	{
 		ubounds(i) = ubound(i);
 	}

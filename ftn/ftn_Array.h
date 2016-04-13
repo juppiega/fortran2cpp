@@ -7,15 +7,18 @@
 namespace ftn
 {
 // TODO:
-// - Kaikki linear(), zb () ja operator() inlineiksi.
-// - Mieti, milloin assignmentissa tulee ottaa huomioon temporaryt.
-// - Lisää inlinausta.
+// - Vector subscript (Ei logicalia).
+// - Implementoi logical array -funktiot.
+// - Implementoi transformational -funktiot (sum, transpose...).
+// - Implementoi bitwise -funktiot.
+// - Fixed size Array (nykyiseen Array-classiin).
+// - Implementoi Fortranin character array- tyyppi.
 
 template<class RefType, int nDims, class Scalar>
 class ArrayView;
 
-template<class Scalar, int nDims>
-class Array: public ArrayNonConstBase<Array<Scalar, nDims>, Scalar>
+template<class Scalar, int nDims, bool isAllocatable> // The last one is optional. Specification in ftn_ArrayBase.h
+class Array: public ArrayNonConstBase<Array<Scalar, nDims, isAllocatable>, Scalar>
 {
 private:
 	bool _isAllocated;
@@ -30,7 +33,7 @@ private:
 	dim_type findInitializationValues(span initVal);
 
 public:
-	using ArrayNonConstBase<Array<Scalar, nDims>, Scalar>::operator(); // MUISTA LISATA UUSIIN CONTAINEREIHIN!!!!
+	using ArrayNonConstBase<Array<Scalar, nDims, isAllocatable>, Scalar>::operator(); // MUISTA LISATA UUSIIN CONTAINEREIHIN!!!!
 
 	template<class T1, class ... OtherTypes>
 	explicit Array(T1 m, OtherTypes ... otherInitVals);
@@ -38,16 +41,16 @@ public:
 	template<class Derived, class Scalar2>
 	Array(ArrayBase<Derived, Scalar2> const& array);
 
-	Array(Array<Scalar, nDims>& array);
+	Array(Array<Scalar, nDims, isAllocatable>& array);
 
-	Array(Array<Scalar, nDims> && other) noexcept;
+	Array(Array<Scalar, nDims, isAllocatable> && other) noexcept;
 
-	Array<Scalar, nDims>& operator=(Array<Scalar, nDims> && other) noexcept;
+	Array<Scalar, nDims, isAllocatable>& operator=(Array<Scalar, nDims, isAllocatable> && other) noexcept;
 
 	template<class Derived, class Scalar2>
-	Array<Scalar, nDims>& operator=(ArrayBase<Derived, Scalar2> const& array);
+	inline Array<Scalar, nDims, isAllocatable>& operator=(ArrayBase<Derived, Scalar2> const& array);
 
-	Array<Scalar, nDims>& operator=(Array<Scalar, nDims>& array);
+	Array<Scalar, nDims, isAllocatable>& operator=(Array<Scalar, nDims, isAllocatable>& array);
 
 	Scalar zb(dim_type m) const;
 	Scalar zb(dim_type m, dim_type n) const;
@@ -94,7 +97,7 @@ public:
 	void reshape(ArrayBase<Derived, Scalar2> const& newDims); // Lisaa Ftn ja Operator Baseen
 
 	template<class Scalar2>
-	typename std::enable_if<!isFtnType<Scalar2>::value, Array<Scalar, nDims> >::type& operator=(const Scalar2& x);
+	typename std::enable_if<!isFtnType<Scalar2>::value, Array<Scalar, nDims, isAllocatable> >::type& operator=(const Scalar2& x);
 
 	constexpr bool isArrayView() const
 	{

@@ -1,10 +1,6 @@
 #ifndef FTN_H_
 #define FTN_H_
 
-/* TODO
- * - Ei voi muuttaa >= 5 dimensioisten arrayiden accessia A(i1,...,iN) Scalariksi kutsuttaessa KIRJASTOfunktiota.
- */
-
 #include "ftn_OperatorBase.h"
 #include "ftn_BinaryOperatorBase.h"
 #include "ftn_BinaryOperatorImplementations.h"

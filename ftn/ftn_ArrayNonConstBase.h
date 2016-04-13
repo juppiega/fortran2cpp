@@ -13,7 +13,7 @@
 namespace ftn
 {
 
-template<class Scalar, int nDims>
+template<class Scalar, int nDims, bool isAllocatable>  // The last one is optional. Specification in ftn_ArrayBase.h
 class Array;
 
 template<class RefType, int nDims, class Scalar>
